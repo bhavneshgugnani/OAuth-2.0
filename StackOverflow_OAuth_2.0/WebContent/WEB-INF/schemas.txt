@@ -1,0 +1,3 @@
+TABLES(DBConnections.java)(<dbname>.<tablename>)
+oauth2_0.stackoverflow_user
+

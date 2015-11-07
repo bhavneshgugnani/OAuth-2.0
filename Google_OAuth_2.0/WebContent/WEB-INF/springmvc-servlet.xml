@@ -19,4 +19,25 @@
 		<property name="suffix" value=".jsp" />
 	</bean>
  
+	<bean id="dbConnectionManager" class="org.bhavnesh.google.db.DBConnectionManager" lazy-init="false"/>
+	
+	<bean id="aesSecurityProvider" class="org.bhavnesh.google.oauth.security.AESSecurityProvider"/>
+	
+	<bean id="userRegistrationController" class="org.bhavnesh.google.user.UserRegistrationController">
+		<property name="dbConnectionManager" ref="dbConnectionManager"/>
+	</bean>
+	
+	<bean id="clientRegistrationController" class="org.bhavnesh.google.client.ClientRegistrationController">
+	    <property name="dbConnectionManager" ref="dbConnectionManager"/>
+	    <property name="aesSecurityProvider" ref="aesSecurityProvider"/>
+	</bean>
+	
+	<bean id="userLoginController" class="org.bhavnesh.google.user.UserLoginController">
+	    <property name="dbConnectionManager" ref="dbConnectionManager"/>
+	</bean>
+	
+	<bean id="clientLoginController" class="org.bhavnesh.google.client.ClientLoginController">
+	    <property name="dbConnectionManager" ref="dbConnectionManager"/>
+	</bean>
+	
 </beans>

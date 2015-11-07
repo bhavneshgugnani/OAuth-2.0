@@ -4,6 +4,6 @@
         <wb-resource deploy-path="/" source-path="/WebContent" tag="defaultRootSource"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src"/>
         <property name="java-output-path" value="/StackOverflow_OAuth_2.0/build/classes"/>
-        <property name="context-root" value="stackoverflow"/>
+        <property name="context-root" value="StackOverflow_OAuth_2.0"/>
     </wb-module>
 </project-modules>

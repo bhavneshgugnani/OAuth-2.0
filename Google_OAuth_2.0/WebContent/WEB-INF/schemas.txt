@@ -1,0 +1,5 @@
+TABLES(DBConnections.java)(<dbname>.<tablename>)
+oauth2_0.google_user
+oauth2_0.google_client
+
+

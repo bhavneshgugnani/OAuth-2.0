@@ -18,6 +18,6 @@ public class SignInController {
 	@RequestMapping(method = RequestMethod.POST)
 	public String signIn(ModelMap model) {
 		// Process login credentials
-		return "signinpage";
+		return "stackoverflow";
 	}
 }

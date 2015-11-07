@@ -18,5 +18,7 @@
 		<property name="prefix" value="/WEB-INF/jsp/" />
 		<property name="suffix" value=".jsp" />
 	</bean>
+	
+	<bean id="dbConnectionManager" class="org.bhavnesh.stackoverflow.db.DBConnectionManager" lazy-init="false"/>
  
 </beans>
