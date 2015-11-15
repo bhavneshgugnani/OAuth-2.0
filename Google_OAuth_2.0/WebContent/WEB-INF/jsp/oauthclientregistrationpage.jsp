@@ -1,3 +1,4 @@
+<%@ page import="org.bhavnesh.google.oauth.security.Constants" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
@@ -18,8 +19,8 @@
 			<label title="info">Please fill the relevant details below.</label>
 		</h2>
 	</div>
-	<c:if test="${message != null}">
-		<h2 style="color: red">${message}</h2>
+	<c:if test="${Constants.DISPLAY_MESSAGE != null}">
+		<h2 style="color: red">${Constants.DISPLAY_MESSAGE}</h2>
 	</c:if>
 	<div style="">
 		<form:form action="/google/client/registration" method="post"

@@ -40,4 +40,8 @@
 	    <property name="dbConnectionManager" ref="dbConnectionManager"/>
 	</bean>
 	
+	<!-- <bean id="oAuthUserController" class="org.bhavnesh.google.oauth.user.OAuthUserController">
+	    <property name="dbConnectionManager" ref="dbConnectionManager"/>
+	</bean> -->
+	
 </beans>

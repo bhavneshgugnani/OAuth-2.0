@@ -1,5 +1,7 @@
 package org.bhavnesh.google.user;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.bhavnesh.google.db.DBConnectionManager;
 import org.bhavnesh.google.form.UserRegistrationForm;
 import org.springframework.stereotype.Controller;
@@ -12,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @RequestMapping("/user")
 public class UserRegistrationController {
 	private DBConnectionManager dbConnectionManager = null;
-	
+
 	public DBConnectionManager getDbConnectionManager() {
 		return dbConnectionManager;
 	}
@@ -28,12 +30,17 @@ public class UserRegistrationController {
 	}
 
 	@RequestMapping(value = "/register", method = RequestMethod.POST)
-	public String postSignUp(@ModelAttribute("userregistrationform") UserRegistrationForm form, ModelMap model) {
-		// save credentials
-		StringBuilder sb = createQuery(form);
-		dbConnectionManager.executeUpdate(sb);
-		model.addAttribute("username", form.getUsername());
-		model.addAttribute("authenticated", true);
+	public String postSignUp(@ModelAttribute("userregistrationform") UserRegistrationForm form, ModelMap model, HttpServletRequest request) {
+		try {
+			// save credentials
+			StringBuilder sb = createQuery(form);
+			dbConnectionManager.executeUpdate(sb);
+			model.addAttribute("username", form.getUsername());
+			model.addAttribute("authenticated", true);
+			request.getSession().setAttribute("authenticated", "user");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		return "google";
 	}
 

@@ -45,10 +45,22 @@ public class DBConnectionManager {
 			System.out.println("Exception Found while creating DBConnection : " + ex);
 		}
 		// Create tables
-		executeUpdate(createDatabase());
-		executeUpdate(createUserTableInitializationQuery());
-		executeUpdate(createClientTableInitializationQuery());
-		System.out.println("******************TABLE SCHEMAS CREATED********************");
+		try {
+			executeUpdate(createDatabase());
+		} catch (Exception ex) {
+			System.out.println(ex.getMessage());
+		}
+		try {
+			executeUpdate(createUserTableInitializationQuery());
+		} catch (Exception ex) {
+			System.out.println(ex.getMessage());
+		}
+		try {
+			executeUpdate(createClientTableInitializationQuery());
+		} catch (Exception ex) {
+			System.out.println(ex.getMessage());
+		}
+		System.out.println("******************TABLE SCHEMAS CREATED FOR GOOGLE********************");
 	}
 
 	public int executeUpdate(StringBuilder query) {

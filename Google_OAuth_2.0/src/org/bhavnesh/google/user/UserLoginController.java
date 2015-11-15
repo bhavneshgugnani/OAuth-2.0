@@ -8,7 +8,8 @@ import javax.servlet.http.HttpSession;
 import org.bhavnesh.google.db.DBConnectionManager;
 import org.bhavnesh.google.form.SingleValueForm;
 import org.bhavnesh.google.form.UserLoginForm;
-import org.bhavnesh.google.vo.UserVO;
+import org.bhavnesh.google.oauth.security.Constants;
+import org.bhavnesh.google.vo.UserSessinInfoVo;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -48,13 +49,16 @@ public class UserLoginController {
 				firstName = rs.getString("FirstName");
 				lastName = rs.getString("LastName");
 				
+				UserSessinInfoVo userSessionInfo = new UserSessinInfoVo(firstName, lastName, email);
 				HttpSession session = request.getSession();
-				session.setAttribute("email", email);
+				//session.setAttribute("email", email);
 				session.setAttribute("authenticated", false);
+				session.setAttribute(Constants.USER_SESSION_INFO, userSessionInfo);
 				
-				model.addAttribute("firstName", firstName);
-				model.addAttribute("lastName", lastName);
-				model.addAttribute("email", email);
+				//model.addAttribute("firstName", firstName);
+				//model.addAttribute("lastName", lastName);
+				//model.addAttribute("email", email);
+				model.addAttribute(Constants.USER_SESSION_INFO, userSessionInfo);
 				return "signinpasswordpage";
 			}
 		} catch (Exception ex) {
@@ -65,7 +69,7 @@ public class UserLoginController {
 	}
 
 	@RequestMapping(value = "/login", method = RequestMethod.GET)
-	public String login(@ModelAttribute("userloginform") UserLoginForm form, ModelMap model,HttpServletRequest request) {
+	public String login(@ModelAttribute("userloginform") UserLoginForm form, ModelMap model, HttpServletRequest request) {
 		// Validate Password, Process Main page
 		StringBuilder query = createLoginQuery(form.getEmail(), form.getPassword());
 		ResultSet rs = dbConnectionManager.executeQuery(query);
