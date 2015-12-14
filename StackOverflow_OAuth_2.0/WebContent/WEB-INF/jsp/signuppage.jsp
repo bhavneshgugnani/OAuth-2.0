@@ -1,3 +1,4 @@
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
     pageEncoding="ISO-8859-1"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
@@ -10,7 +11,7 @@
 <h1>StackOverflow Registration</h1>
 <br/>
 <br/>
-<a href="/stackoverflow/user/oauth/signup">Sign Up using your google account!</a>
+Sign Up using your <a href="${oAuthRedirectUrl}?responseUrl=${responseUrl}">Google Account!</a>
 <br/>
 <br/>
 <form:form action="/stackoverflow/user/register" method="post" modelAttribute="userregistrationform">

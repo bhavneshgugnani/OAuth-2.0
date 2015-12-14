@@ -60,6 +60,16 @@ public class DBConnectionManager {
 		} catch (Exception ex) {
 			System.out.println(ex.getMessage());
 		}
+		try {
+			executeUpdate(createTimeoutTokenTableInitializationQuery());
+		} catch (Exception ex) {
+			System.out.println(ex.getMessage());
+		}
+		try {
+			executeUpdate(createOAuthTokenTableInitializationQuery());
+		} catch (Exception ex) {
+			System.out.println(ex.getMessage());
+		}
 		System.out.println("******************TABLE SCHEMAS CREATED FOR GOOGLE********************");
 	}
 
@@ -97,7 +107,19 @@ public class DBConnectionManager {
 
 	private StringBuilder createClientTableInitializationQuery() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("CREATE TABLE oauth2_0.google_client (Id int UNIQUE NOT NULL AUTO_INCREMENT PRIMARY KEY, ClientName varchar(25) NOT NULL, ClientUsername varchar(25) UNIQUE NOT NULL, ClientPassword varchar(25) NOT NULL, ClientAddress varchar(255), ClientEmail varchar(25) NOT NULL, ClientSecret varchar(255) NOT NULL);");
+		sb.append("CREATE TABLE oauth2_0.google_client (Id varchar(255) UNIQUE NOT NULL AUTO_INCREMENT PRIMARY KEY, ClientName varchar(25) NOT NULL, ClientUsername varchar(25) UNIQUE NOT NULL, ClientPassword varchar(25) NOT NULL, ClientAddress varchar(255), ClientEmail varchar(25) NOT NULL, ClientSecret varchar(255) NOT NULL);");
+		return sb;
+	}
+	
+	private StringBuilder createTimeoutTokenTableInitializationQuery() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("CREATE TABLE oauth2_0.google_temp_token (Id varchar(255) UNIQUE NOT NULL AUTO_INCREMENT PRIMARY KEY, ClientId varchar(50) NOT NULL, EMail varchar(50) NOT NULL, Token varchar(100) NOT NULL, Timeout varchar(25) NOT NULL);");
+		return sb;
+	}
+	
+	private StringBuilder createOAuthTokenTableInitializationQuery() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("CREATE TABLE oauth2_0.google_oauth_token (Id varchar(255) UNIQUE NOT NULL AUTO_INCREMENT PRIMARY KEY, ClientId varchar(50) NOT NULL, EMail varchar(50) NOT NULL, OAuthToken varchar(100) NOT NULL);");
 		return sb;
 	}
 }

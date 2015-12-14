@@ -11,6 +11,7 @@
 <title>Registration</title>
 </head>
 <body>
+<c:set var="message" value="${Constants.DISPLAY_MESSAGE}" scope="page"/>
 	<div style="height: 150px; width: 100%">
 		<h1>
 			<label title="googlergistration">Google Registration Form</label>
@@ -19,8 +20,8 @@
 			<label title="info">Please fill the relevant details below.</label>
 		</h2>
 	</div>
-	<c:if test="${Constants.DISPLAY_MESSAGE != null}">
-		<h2 style="color: red">${Constants.DISPLAY_MESSAGE}</h2>
+	<c:if test="${message != null}">
+		<h2 style="color: red">${message}</h2>
 	</c:if>
 	<div style="">
 		<form:form action="/google/client/registration" method="post"

@@ -11,6 +11,7 @@
 <title>Sign In</title>
 </head>
 <body>
+<c:set var="message" value="${Constants.DISPLAY_MESSAGE}" scope="page"/>
 	<div
 		style="height: 40%; width: 100%; align: center; vertical-align: middle;">
 		<div style="vertical-align: middle; padding: 0% 0% 0% 50%;">
@@ -23,8 +24,8 @@
 			<br/>
 			<h3>${email}</h3>
 			<c:choose>
-				<c:when test="${Constants.DISPLAY_MESSAGE != null}">
-					<h2>${Constants.DISPLAY_MESSAGE}</h2>
+				<c:when test="${message != null}">
+					<h2>${message}</h2>
 				</c:when>
 				<c:otherwise>
 					<h2>Please enter your password</h2>

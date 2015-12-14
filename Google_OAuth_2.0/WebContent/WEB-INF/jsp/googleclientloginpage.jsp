@@ -12,6 +12,7 @@
 <title>Login</title>
 </head>
 <body>
+<c:set var="message" value="${Constants.DISPLAY_MESSAGE}" scope="page"/>
 	<h1>OAuth 2.0</h1>
 	<br />
 	<br />
@@ -19,8 +20,8 @@
 	<h2>Client Login</h2>
 	<br />
 	<br />
-	<c:if test="${Constants.DISPLAY_MESSAGE != null}">
-		<h2 style="color: red">${Constants.DISPLAY_MESSAGE}</h2>
+	<c:if test="${message != null}">
+		<h2 style="color: red">${message}</h2>
 	</c:if>
 	<form:form action="/google/client/login" method="post"
 		modelAttribute="clientloginform">

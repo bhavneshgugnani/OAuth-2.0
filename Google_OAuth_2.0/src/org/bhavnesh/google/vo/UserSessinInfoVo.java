@@ -5,6 +5,9 @@ public class UserSessinInfoVo {
 	private String lastName = null;
 	private String email = null;
 
+	public UserSessinInfoVo(){
+	}
+	
 	public UserSessinInfoVo(String firstName, String lastName, String email) {
 		this.firstName = firstName;
 		this.lastName = lastName;

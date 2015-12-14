@@ -10,6 +10,7 @@ import org.bhavnesh.google.form.SingleValueForm;
 import org.bhavnesh.google.form.UserLoginForm;
 import org.bhavnesh.google.oauth.security.Constants;
 import org.bhavnesh.google.vo.UserSessinInfoVo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -26,6 +27,7 @@ public class UserLoginController {
 		return dbConnectionManager;
 	}
 
+	@Autowired
 	public void setDbConnectionManager(DBConnectionManager dbConnectionManager) {
 		this.dbConnectionManager = dbConnectionManager;
 	}

@@ -9,7 +9,11 @@
         http://www.springframework.org/schema/context 
         http://www.springframework.org/schema/context/spring-context.xsd">
  
+	<!-- Scan Spring MVC Controllers  -->
 	<context:component-scan base-package="org.bhavnesh.google" />
+	
+	<!-- Spring annotation support -->
+	<context:annotation-config />
  
 	<bean id="viewResolver"
 		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
@@ -22,6 +26,9 @@
 	<bean id="dbConnectionManager" class="org.bhavnesh.google.db.DBConnectionManager" lazy-init="false"/>
 	
 	<bean id="aesSecurityProvider" class="org.bhavnesh.google.oauth.security.AESSecurityProvider"/>
+	
+	<!-- 
+	<bean id="test" class="org.bhvanesh.google.test.TestController" />
 	
 	<bean id="userRegistrationController" class="org.bhavnesh.google.user.UserRegistrationController">
 		<property name="dbConnectionManager" ref="dbConnectionManager"/>
@@ -40,7 +47,7 @@
 	    <property name="dbConnectionManager" ref="dbConnectionManager"/>
 	</bean>
 	
-	<!-- <bean id="oAuthUserController" class="org.bhavnesh.google.oauth.user.OAuthUserController">
+	<bean id="oAuthUserController" class="org.bhavnesh.google.oauth.user.OAuthUserController">
 	    <property name="dbConnectionManager" ref="dbConnectionManager"/>
 	</bean> -->
 	

@@ -4,6 +4,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.bhavnesh.google.db.DBConnectionManager;
 import org.bhavnesh.google.form.UserRegistrationForm;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -19,6 +20,7 @@ public class UserRegistrationController {
 		return dbConnectionManager;
 	}
 
+	@Autowired
 	public void setDbConnectionManager(DBConnectionManager dbConnectionManager) {
 		this.dbConnectionManager = dbConnectionManager;
 	}

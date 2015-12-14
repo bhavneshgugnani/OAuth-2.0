@@ -1,6 +1,7 @@
 package org.bhavnesh.google.client;
 
 import java.sql.ResultSet;
+import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -8,6 +9,7 @@ import org.bhavnesh.google.db.DBConnectionManager;
 import org.bhavnesh.google.form.ClientRegistrationForm;
 import org.bhavnesh.google.oauth.security.AESSecurityProvider;
 import org.bhavnesh.google.oauth.security.Constants;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -19,11 +21,14 @@ import org.springframework.web.bind.annotation.RequestMethod;
 public class ClientRegistrationController {
 	private DBConnectionManager dbConnectionManager = null;
 	private AESSecurityProvider aesSecurityProvider = null;
+	
+	private UUID uuid = null;
 
 	public DBConnectionManager getDbConnectionManager() {
 		return dbConnectionManager;
 	}
 
+	@Autowired
 	public void setDbConnectionManager(DBConnectionManager dbConnectionManager) {
 		this.dbConnectionManager = dbConnectionManager;
 	}
@@ -32,6 +37,7 @@ public class ClientRegistrationController {
 		return aesSecurityProvider;
 	}
 
+	@Autowired
 	public void setAesSecurityProvider(AESSecurityProvider aesSecurityProvider) {
 		this.aesSecurityProvider = aesSecurityProvider;
 	}
@@ -76,8 +82,13 @@ public class ClientRegistrationController {
 	}
 
 	private StringBuilder createRegistrationQuery(ClientRegistrationForm form, String secretKey) {
+		//generate unique id for client
+		uuid = UUID.randomUUID();
+		
 		StringBuilder sb = new StringBuilder();
-		sb.append("INSERT INTO oauth2_0.google_client (Id, ClientName, ClientUsername, ClientPassword, ClientAddress, ClientEmail, ClientSecret) VALUES ('0', '");
+		sb.append("INSERT INTO oauth2_0.google_client (Id, ClientName, ClientUsername, ClientPassword, ClientAddress, ClientEmail, ClientSecret) VALUES ('");
+		sb.append(uuid.toString());
+		sb.append("', '");
 		sb.append(form.getClientName());
 		sb.append("', '");
 		sb.append(form.getClientUsername());
