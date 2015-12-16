@@ -122,7 +122,7 @@ public class OAuthUserController {
 	}
 	
 	@RequestMapping(method = RequestMethod.POST, value="/{clientId}/permission")
-	public String grantPermission(@PathVariable("clientId") String clientId, @RequestParam(value = "permissionGrant", required = false) boolean permissionGrant, ModelMap model, HttpServletRequest request, HttpServletResponse response){
+	public String grantPermission(@PathVariable("clientId") String clientId, @RequestParam(value = "permissionGrant", required = true) boolean permissionGrant, ModelMap model, HttpServletRequest request, HttpServletResponse response){
 		try {
 			HttpSession session = request.getSession();
 			if (session != null && session.getAttribute(Constants.AUTHENTICATED) != null
@@ -140,13 +140,13 @@ public class OAuthUserController {
 					int rs = dbConnectionManager.executeUpdate(query);
 					if(rs == 1){
 						// success
-						responseUrl += "?access=true&success=true&token=" + uuid;
+						responseUrl += "?" + Constants.ACCESS + "=true&" + Constants.SUCCESS + "=true&" + Constants.TOKEN + "token=" + uuid;
 					} else if(rs == 0) {//rs == 0
 						// failure
-						responseUrl += "?access=true&success=false";
+						responseUrl += "?" + Constants.ACCESS + "=true&" + Constants.SUCCESS + "=false";
 					} else if(rs == -1) {
 						//duplicate entry in db, invalid case
-						responseUrl += "?access=false&success=false";
+						responseUrl += "?" + Constants.ACCESS + "=false&" + Constants.SUCCESS + "=false";
 					}
 					//logout user from google account for security automatically
 					session.invalidate();

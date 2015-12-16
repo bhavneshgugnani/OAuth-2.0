@@ -23,4 +23,8 @@ public class Constants {
 	public static final String LAST_NAME = "lastname";
 	
 	public static final String RESPONSE_URL = "responseurl";
+	
+	public static final String ACCESS = "access";
+	public static final String TOKEN = "token";
+	public static final String SUCCESS = "success";
 }
