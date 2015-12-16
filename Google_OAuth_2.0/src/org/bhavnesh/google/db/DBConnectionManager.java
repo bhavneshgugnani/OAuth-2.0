@@ -113,13 +113,13 @@ public class DBConnectionManager {
 	
 	private StringBuilder createTimeoutTokenTableInitializationQuery() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("CREATE TABLE oauth2_0.google_temp_token (Id varchar(255) UNIQUE NOT NULL AUTO_INCREMENT PRIMARY KEY, ClientId varchar(50) NOT NULL, EMail varchar(50) NOT NULL, Token varchar(100) NOT NULL, Timeout varchar(25) NOT NULL);");
+		sb.append("CREATE TABLE oauth2_0.google_temp_token (Id int UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY, ClientId varchar(50) NOT NULL, EMail varchar(50) NOT NULL, Token varchar(100) NOT NULL, Timeout varchar(25) NOT NULL);");
 		return sb;
 	}
 	
 	private StringBuilder createOAuthTokenTableInitializationQuery() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("CREATE TABLE oauth2_0.google_oauth_token (Id varchar(255) UNIQUE NOT NULL AUTO_INCREMENT PRIMARY KEY, ClientId varchar(50) NOT NULL, EMail varchar(50) NOT NULL, OAuthToken varchar(100) NOT NULL);");
+		sb.append("CREATE TABLE oauth2_0.google_oauth_token (Id int UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY, ClientId varchar(50) NOT NULL, EMail varchar(50) NOT NULL, OAuthToken varchar(100) NOT NULL);");
 		return sb;
 	}
 }

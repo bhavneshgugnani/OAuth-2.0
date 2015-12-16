@@ -65,6 +65,7 @@ public class OAuthUserController {
 	
 	@RequestMapping(method = RequestMethod.POST, value="/{clientId}/userlogin")
 	public String oAuthUserLogin(@ModelAttribute("oauthuserloginform") UserLoginForm form, @PathVariable("clientId") String clientId, ModelMap model, HttpServletRequest request){
+		HttpSession session = request.getSession();
 		StringBuilder query = createClientInfoQuery(clientId);
 		ResultSet rs = dbConnectionManager.executeQuery(query);
 		try{
@@ -77,29 +78,33 @@ public class OAuthUserController {
 				model.addAttribute(Constants.DISPLAY_MESSAGE, "Warning! Unknown third party user trying to access your private information.");
 				return "unknownclientpage";
 			}
+			String responseUrl = form.getResponseUrl();
+			model.addAttribute("clientId", clientId);
+			session.setAttribute(Constants.CLIENT_ID, clientId);
+			session.setAttribute(Constants.RESPONSE_URL, responseUrl);
+			
 			//do user authentication
 			query = createUserLoginQuery(form);
 			rs = dbConnectionManager.executeQuery(query);
 			if(rs.next()){
 				//user login success
-				UserSessinInfoVo userInfo = new UserSessinInfoVo();
-				userInfo.setFirstName(rs.getString("FirstName"));
-				userInfo.setLastName(rs.getString("LastName"));
-				userInfo.setEmail(rs.getString("EMail"));
+				String firstName = rs.getString("FirstName");
 				
-				HttpSession session = request.getSession();
+				
 				session.setAttribute(Constants.AUTHENTICATED, true);
-				session.setAttribute("clientId", clientId);
-				session.setAttribute(Constants.USER_SESSION_INFO, userInfo);
 				
-				model.addAttribute(Constants.USER_SESSION_INFO, userInfo);
+				session.setAttribute(Constants.EMAIL, rs.getString("EMail"));
+				session.setAttribute(Constants.FIRST_NAME, firstName);
+				session.setAttribute(Constants.LAST_NAME, rs.getString("LastName"));
+				
+				//model.addAttribute(Constants.USER_SESSION_INFO, userInfo);
 				model.addAttribute(Constants.AUTHENTICATED, true);
-				model.addAttribute("displayname", userInfo.getFirstName());
+				model.addAttribute("displayname", firstName);
 				
 				return "oauthusergrantingpage";
 			} else {
-				model.addAttribute("clientId", clientId);
-				model.addAttribute("responseUrl", form.getResponseUrl());
+				
+				model.addAttribute("responseUrl", responseUrl);
 				model.addAttribute(Constants.DISPLAY_MESSAGE, "Failed to Login! Please try Again.");
 				return "oauthuserloginpage";
 			}
@@ -122,7 +127,7 @@ public class OAuthUserController {
 			HttpSession session = request.getSession();
 			if (session != null && session.getAttribute(Constants.AUTHENTICATED) != null
 					&& Boolean.parseBoolean(session.getAttribute(Constants.AUTHENTICATED).toString()) == true) {
-				String responseUrl = (String) session.getAttribute("responseUrl");
+				String responseUrl = (String) session.getAttribute(Constants.RESPONSE_URL);
 				if (!permissionGrant) {
 					responseUrl += "?access=false";
 				} else {
@@ -130,8 +135,8 @@ public class OAuthUserController {
 					// token has timeout of 5 min.
 					
 					UUID uuid = UUID.randomUUID();
-					UserSessinInfoVo userInfo = (UserSessinInfoVo) session.getAttribute(Constants.USER_SESSION_INFO);
-					StringBuilder query = createTempTokenQuery(clientId, userInfo.getEmail(), uuid.toString(), Long.toString((Calendar.getInstance().getTimeInMillis())+(5*60*1000)));
+					//UserSessinInfoVo userInfo = (UserSessinInfoVo) session.getAttribute(Constants.USER_SESSION_INFO);
+					StringBuilder query = createTempTokenQuery(clientId, (String) session.getAttribute(Constants.EMAIL), uuid.toString(), Long.toString((Calendar.getInstance().getTimeInMillis())+(5*60*1000)));
 					int rs = dbConnectionManager.executeUpdate(query);
 					if(rs == 1){
 						// success
@@ -143,6 +148,8 @@ public class OAuthUserController {
 						//duplicate entry in db, invalid case
 						responseUrl += "?access=false&success=false";
 					}
+					//logout user from google account for security automatically
+					session.invalidate();
 				}
 				response.sendRedirect(responseUrl);
 				return "";

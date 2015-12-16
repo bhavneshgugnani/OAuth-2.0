@@ -15,4 +15,12 @@ public class Constants {
 	public static final String DISPLAY_MESSAGE = "message";
 	
 	public static final String USER_SESSION_INFO = "usersessioninfo";
+	
+	public static final String EMAIL = "email";
+	
+	public static final String FIRST_NAME = "firstname";
+	
+	public static final String LAST_NAME = "lastname";
+	
+	public static final String RESPONSE_URL = "responseurl";
 }

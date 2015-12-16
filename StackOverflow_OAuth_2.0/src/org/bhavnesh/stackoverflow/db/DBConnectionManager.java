@@ -79,13 +79,13 @@ public class DBConnectionManager {
 
 	private StringBuilder createUserTableInitializationQuery() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("CREATE TABLE oauth2_0.stackoverflow_user (ID int UNIQUE NOT NULL AUTO_INCREMENT PRIMARY KEY, FirstName varchar(25) NOT NULL, LastName varchar(25) NOT NULL, EMail varchar(50) UNIQUE NOT NULL, Username varchar(25) UNIQUE NOT NULL, Password varchar(25) NOT NULL, Age int , Gender ENUM('Male', 'Female') NOT NULL, Address varchar(255), Phone varchar(10));");
+		sb.append("CREATE TABLE oauth2_0.stackoverflow_user (ID int UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY, FirstName varchar(25) NOT NULL, LastName varchar(25) NOT NULL, EMail varchar(50) UNIQUE NOT NULL, Username varchar(25) UNIQUE NOT NULL, Password varchar(25) NOT NULL, Age int , Gender ENUM('Male', 'Female') NOT NULL, Address varchar(255), Phone varchar(10));");
 		return sb;
 	}
 	
 	private StringBuilder createUserOAuthTableInitialisationQuery(){
 		StringBuilder sb = new StringBuilder();
-		sb.append("CREATE TABLE oauth2_0.stackoverflow_user_oauth (ID int UNIQUE NOT NULL AUTO_INCREMENT PRIMARY KEY, Username varchar(25) UNIQUE NOT NULL, OAuthToken varchar(25) UNIQUE NOT NULL);");
+		sb.append("CREATE TABLE oauth2_0.stackoverflow_user_oauth (ID int UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY, Username varchar(25) UNIQUE NOT NULL, OAuthToken varchar(25) UNIQUE NOT NULL);");
 		return sb;
 	}
 }
