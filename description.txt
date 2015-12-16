@@ -1,0 +1,8 @@
+This project is a classic implementation of OAuth 2.0 protocol
+This is a web-server flow but there can be multiple flows of token depending on application specivity
+
+The only thing missing from this project is support for SSL for exchanging token in a secure way between clients
+Encryption can be public key based in an ideal system
+
+Google is the host of OAuth token and Stackoverflow allows user to register using OAuth Token provided by google.
+
