@@ -10,4 +10,6 @@ public class Constants {
 	public static final String ACCESS = "access";
 	public static final String TOKEN = "token";
 	public static final String SUCCESS = "success";
+	
+	public static final String MESSAGE = "message"; 
 }

@@ -11,6 +11,7 @@ public class MainController {
 
 	@RequestMapping(method = RequestMethod.GET)
 	public String google(ModelMap model) {
+		
 		return "stackoverflow";
 	}
 }

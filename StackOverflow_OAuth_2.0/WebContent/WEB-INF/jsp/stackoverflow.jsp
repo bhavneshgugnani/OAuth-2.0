@@ -1,3 +1,4 @@
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
     pageEncoding="ISO-8859-1"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
@@ -21,6 +22,9 @@
 		<div style="align: left; padding: 0px 0px 0px 150px; vertical-align: top;">
 			<h1>Welcome To StackOverflow!</h1>
 		</div>
+		<c:if test="${message != null}">
+			<h2 style="color: red">${message}</h2>
+		</c:if>
 	</div>
 </body>
 </html>

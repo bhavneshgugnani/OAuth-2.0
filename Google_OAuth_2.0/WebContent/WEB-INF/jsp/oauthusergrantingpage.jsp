@@ -1,7 +1,7 @@
 <%@ page import="org.bhavnesh.google.oauth.security.Constants"%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-<%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
-<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
+<%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
     pageEncoding="ISO-8859-1"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
@@ -17,18 +17,14 @@ function submitPermission(grantPermission){
         'url' : '/google/user/oauth/${clientId}/permission?permissionGrant='+grantPermission,
         'type' : 'POST',
         'success' : function(data) {              
-            alert();
+            //alert();
         },
         'error' : function(request,error)
         {
-            alert("Request: "+JSON.stringify(request));
+            //alert("Request: "+JSON.stringify(request));
         }
     });
 } 
-
-function test(){
-	alert("test");
-}
 </script>
 </head>
 

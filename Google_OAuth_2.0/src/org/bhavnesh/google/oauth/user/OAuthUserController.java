@@ -129,7 +129,7 @@ public class OAuthUserController {
 					&& Boolean.parseBoolean(session.getAttribute(Constants.AUTHENTICATED).toString()) == true) {
 				String responseUrl = (String) session.getAttribute(Constants.RESPONSE_URL);
 				if (!permissionGrant) {
-					responseUrl += "?access=false";
+					responseUrl += "?" + Constants.ACCESS + "=false";
 				} else {
 					// generate temporary authToken and store in db
 					// token has timeout of 5 min.
@@ -140,7 +140,7 @@ public class OAuthUserController {
 					int rs = dbConnectionManager.executeUpdate(query);
 					if(rs == 1){
 						// success
-						responseUrl += "?" + Constants.ACCESS + "=true&" + Constants.SUCCESS + "=true&" + Constants.TOKEN + "token=" + uuid;
+						responseUrl += "?" + Constants.ACCESS + "=true&" + Constants.SUCCESS + "=true&" + Constants.TOKEN + "=" + uuid;
 					} else if(rs == 0) {//rs == 0
 						// failure
 						responseUrl += "?" + Constants.ACCESS + "=true&" + Constants.SUCCESS + "=false";
@@ -149,10 +149,9 @@ public class OAuthUserController {
 						responseUrl += "?" + Constants.ACCESS + "=false&" + Constants.SUCCESS + "=false";
 					}
 					//logout user from google account for security automatically
-					session.invalidate();
+					//session.invalidate();
 				}
-				response.sendRedirect(responseUrl);
-				return "";
+				return "redirect:" + responseUrl;
 			} else {
 				model.addAttribute("clientId", clientId);
 				model.addAttribute(Constants.DISPLAY_MESSAGE, "Failed to Login! Please try Again.");
