@@ -16,7 +16,7 @@ function requestToken(){
 <br/>
 <br/>
 <c:if test="${message != null}">
-	<h2 style="color: red">${message}</h2>
+	<h2>${message}</h2>
 </c:if>
 </body>
 </html>

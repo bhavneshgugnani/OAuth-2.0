@@ -9,21 +9,17 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <title>OAuth 2.0</title>
-<!-- <c:set var="clientId" value="${clientId}"/> -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 <script type="text/javascript" language="javascript">
 function submitPermission(grantPermission){
-	$.ajax({
-        'url' : '/google/user/oauth/${clientId}/permission?permissionGrant='+grantPermission,
-        'type' : 'POST',
-        'success' : function(data) {              
-            //alert();
-        },
-        'error' : function(request,error)
-        {
-            //alert("Request: "+JSON.stringify(request));
-        }
-    });
+	//send a post request to google server
+	var form = document.createElement("form");
+    
+	form.action = '/google/user/oauth/${clientId}/permission?permissionGrant='+grantPermission;
+	form.method = "post"
+
+	document.body.appendChild(form);
+	form.submit();
 } 
 </script>
 </head>

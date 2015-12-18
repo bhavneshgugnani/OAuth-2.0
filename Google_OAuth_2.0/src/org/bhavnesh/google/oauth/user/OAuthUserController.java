@@ -10,9 +10,11 @@ import javax.servlet.http.HttpSession;
 
 import org.bhavnesh.google.db.DBConnectionManager;
 import org.bhavnesh.google.form.UserLoginForm;
+import org.bhavnesh.google.oauth.security.AESSecurityProvider;
 import org.bhavnesh.google.oauth.security.Constants;
 import org.bhavnesh.google.vo.UserSessinInfoVo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 @RequestMapping("/user/oauth")
@@ -125,6 +128,7 @@ public class OAuthUserController {
 	public String grantPermission(@PathVariable("clientId") String clientId, @RequestParam(value = "permissionGrant", required = true) boolean permissionGrant, ModelMap model, HttpServletRequest request, HttpServletResponse response){
 		try {
 			HttpSession session = request.getSession();
+			AESSecurityProvider aesSecurityProvider = null;
 			if (session != null && session.getAttribute(Constants.AUTHENTICATED) != null
 					&& Boolean.parseBoolean(session.getAttribute(Constants.AUTHENTICATED).toString()) == true) {
 				String responseUrl = (String) session.getAttribute(Constants.RESPONSE_URL);
@@ -133,19 +137,28 @@ public class OAuthUserController {
 				} else {
 					// generate temporary authToken and store in db
 					// token has timeout of 5 min.
-					
-					UUID uuid = UUID.randomUUID();
-					//UserSessinInfoVo userInfo = (UserSessinInfoVo) session.getAttribute(Constants.USER_SESSION_INFO);
-					StringBuilder query = createTempTokenQuery(clientId, (String) session.getAttribute(Constants.EMAIL), uuid.toString(), Long.toString((Calendar.getInstance().getTimeInMillis())+(5*60*1000)));
-					int rs = dbConnectionManager.executeUpdate(query);
-					if(rs == 1){
-						// success
-						responseUrl += "?" + Constants.ACCESS + "=true&" + Constants.SUCCESS + "=true&" + Constants.TOKEN + "=" + uuid;
-					} else if(rs == 0) {//rs == 0
-						// failure
-						responseUrl += "?" + Constants.ACCESS + "=true&" + Constants.SUCCESS + "=false";
-					} else if(rs == -1) {
-						//duplicate entry in db, invalid case
+					// extract client secret for encryption of temp token
+					StringBuilder query = createClientSecretQuery(clientId);
+					ResultSet rs = dbConnectionManager.executeQuery(query);
+					if(rs.next()){
+						UUID uuid = UUID.randomUUID();
+						aesSecurityProvider = new AESSecurityProvider(rs.getString("ClientSecret"));
+						String encryptedToken = aesSecurityProvider.encrypt(uuid.toString());
+						
+						query = createTempTokenQuery(clientId, (String) session.getAttribute(Constants.EMAIL), uuid.toString(), Long.toString((Calendar.getInstance().getTimeInMillis())+(5*60*1000)));
+						int res = dbConnectionManager.executeUpdate(query);
+						if(res == 1){
+							// success
+							responseUrl += "?" + Constants.ACCESS + "=true&" + Constants.SUCCESS + "=true&" + Constants.TOKEN + "=" + encryptedToken;
+						} else if(res == 0) {//rs == 0
+							// failure
+							responseUrl += "?" + Constants.ACCESS + "=true&" + Constants.SUCCESS + "=false";
+						} else if(res == -1) {
+							//duplicate entry in db, invalid case
+							responseUrl += "?" + Constants.ACCESS + "=false&" + Constants.SUCCESS + "=false";
+						}
+					} else {
+						//client secret missing in db
 						responseUrl += "?" + Constants.ACCESS + "=false&" + Constants.SUCCESS + "=false";
 					}
 					//logout user from google account for security automatically
@@ -167,6 +180,13 @@ public class OAuthUserController {
 		return "oauthusergrantingpage";
 	}
 	
+	@RequestMapping(method = RequestMethod.GET, value="/{clientId}/requestoauthtoken")
+	public String getOAuthToken(@PathVariable("clientId") String clientId, ModelMap model, HttpServletRequest request, HttpServletResponse response){
+		String encryptedToken = (String) request.getAttribute(Constants.TOKEN);
+		
+		
+		return "";
+	}
 	
 	private StringBuilder createClientInfoQuery(String clientId){
 		StringBuilder sb = new StringBuilder();
@@ -197,6 +217,14 @@ public class OAuthUserController {
 		sb.append("' ,'");
 		sb.append(timeout);
 		sb.append("');");
+		return sb;
+	}
+	
+	private StringBuilder createClientSecretQuery(String clientId){
+		StringBuilder sb = new StringBuilder();
+		sb.append("SELECT ClientSecret FROM oauth2_0.google_client where Id='");
+		sb.append(clientId);
+		sb.append("';");
 		return sb;
 	}
 	
