@@ -180,9 +180,13 @@ public class DBQueryManager {
 		return sb;
 	}
 	
-	public static final StringBuilder createRemoveOAuthClientQuery(String clientId){
+	public static final StringBuilder createRemoveOAuthClientQuery(String clientId, String email){
 		StringBuilder sb = new StringBuilder();
-		sb.append("");
+		sb.append("DELETE FROM oauth2_0.google_oauth_token WHERE ClientId='");
+		sb.append(clientId);
+		sb.append("' AND EMail='");
+		sb.append(email);
+		sb.append("';");
 		return sb;
 	}
 }

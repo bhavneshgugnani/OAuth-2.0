@@ -51,19 +51,22 @@ public class OAuthUserController {
 			while (rs.next()) {
 				clientIds.add(rs.getString("ClientId"));
 			}
-			//get names of clients
-			query = DBQueryManager.createGetClientQuery(clientIds);
-			rs = dbConnectionManager.executeQuery(query);
-			ClientVO client = null; 
-			List<ClientVO> clients = new ArrayList<>();
-			while(rs.next()){
-				client = new ClientVO();
-				client.setClientId(rs.getString("Id"));
-				client.setClientName(rs.getString("ClientName"));
-				clients.add(client);
-			}
-			if(!clients.isEmpty()){
-				model.addAttribute(Constants.OAUTH_CLIENTS, clients);
+			
+			if(!clientIds.isEmpty()){
+				//get names of clients
+				query = DBQueryManager.createGetClientQuery(clientIds);
+				rs = dbConnectionManager.executeQuery(query);
+				ClientVO client = null; 
+				List<ClientVO> clients = new ArrayList<>();
+				while(rs.next()){
+					client = new ClientVO();
+					client.setClientId(rs.getString("Id"));
+					client.setClientName(rs.getString("ClientName"));
+					clients.add(client);
+				}
+				if(!clients.isEmpty()){
+					model.addAttribute(Constants.OAUTH_CLIENTS, clients);
+				}
 			}
 			return "useroauthclients";
 		} catch (Exception ex) {
@@ -73,14 +76,23 @@ public class OAuthUserController {
 	}
 	
 	@RequestMapping(method = RequestMethod.POST, value="/remove/{clientId}")
-	public String removeOAuthClient(@PathVariable("clientId") String clientId, HttpServletRequest request, ModelMap model){
+	public void removeOAuthClient(@PathVariable("clientId") String clientId, HttpServletRequest request, ModelMap model){
 		try{
-			
+			String email = (String) request.getSession().getAttribute(Constants.EMAIL);
+			StringBuilder query = DBQueryManager.createRemoveOAuthClientQuery(clientId, email);
+			int rs = dbConnectionManager.executeUpdate(query);
+			if(rs == 1){
+				//successful
+				model.addAttribute(Constants.DISPLAY_MESSAGE, "OAuth Client unlinked successfully!");
+			} else if(rs == 0) {
+				//error, failed to delete, wrong params
+				model.addAttribute(Constants.DISPLAY_MESSAGE, "Failed to unlink account. Please try again.");
+			}
 		} catch(Exception ex){
 			System.out.println(ex.getMessage());
+			model.addAttribute(Constants.DISPLAY_MESSAGE, "Failed to unlink account. Unexpected error.");
 		}
-		
-		return "google";
+		//page reloaded by client
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/{clientId}")
