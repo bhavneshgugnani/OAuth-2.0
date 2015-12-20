@@ -11,7 +11,6 @@
 <title>Sign In</title>
 </head>
 <body>
-<c:set var="message" value="${Constants.DISPLAY_MESSAGE}" scope="page"/>
 	<div
 		style="height: 40%; width: 100%; align: center; vertical-align: middle;">
 		<div style="vertical-align: middle; padding: 0% 0% 0% 50%;">

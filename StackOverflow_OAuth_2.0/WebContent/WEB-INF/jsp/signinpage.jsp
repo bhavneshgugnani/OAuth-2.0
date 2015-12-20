@@ -29,6 +29,6 @@ Password : <input type="password" id="password" name="password"/>
 </form:form>
 <br/>
 <br/>
-Sign Up using your <a href="${oAuthRedirectUrl}?responseUrl=${responseUrl}">Google Account!</a>
+Sign Up using your <a href="/stackoverflow/oauth/redirect">Google Account!</a>
 </body>
 </html>

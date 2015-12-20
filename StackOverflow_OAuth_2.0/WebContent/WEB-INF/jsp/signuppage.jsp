@@ -11,7 +11,7 @@
 <h1>StackOverflow Registration</h1>
 <br/>
 <br/>
-Sign Up using your <a href="${oAuthRedirectUrl}?responseUrl=${responseUrl}">Google Account!</a>
+Sign Up using your <a href="/stackoverflow/oauth/redirect">Google Account!</a>
 <br/>
 <br/>
 <form:form action="/stackoverflow/user/register" method="post" modelAttribute="userregistrationform">

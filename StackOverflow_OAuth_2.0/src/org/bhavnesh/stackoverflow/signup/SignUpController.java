@@ -12,8 +12,6 @@ public class SignUpController {
 
 	@RequestMapping(method = RequestMethod.GET)
 	public String getSignUp(ModelMap model) {
-		model.addAttribute("oAuthRedirectUrl", Constants.OAUTH_REDIRECT_URL);
-		model.addAttribute("responseUrl", Constants.RESPONSE_URL);
 		return "signuppage";
 	}
 	

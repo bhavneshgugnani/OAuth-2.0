@@ -5,6 +5,7 @@ import java.sql.ResultSet;
 import javax.servlet.http.HttpServletRequest;
 
 import org.bhavnesh.google.db.DBConnectionManager;
+import org.bhavnesh.google.db.DBQueryManager;
 import org.bhavnesh.google.form.ClientLoginForm;
 import org.bhavnesh.google.oauth.security.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,9 +35,10 @@ public class ClientLoginController {
 	}
 
 	@RequestMapping(value = "/login", method = RequestMethod.POST)
-	public String login(@ModelAttribute("clientloginform") ClientLoginForm form, ModelMap model, HttpServletRequest request) {
+	public String login(@ModelAttribute("clientloginform") ClientLoginForm form, ModelMap model,
+			HttpServletRequest request) {
 		try {
-			StringBuilder query = createLoginQuery(form);
+			StringBuilder query = DBQueryManager.createLoginQuery(form);
 			ResultSet rs = dbConnectionManager.executeQuery(query);
 			if (rs.next()) {
 				request.getSession().setAttribute("authenticated", true);
@@ -61,19 +63,4 @@ public class ClientLoginController {
 		return "googleclientloginpage";
 	}
 
-	private StringBuilder createLoginQuery(ClientLoginForm form) {
-		StringBuilder sb = new StringBuilder();
-		sb.append("SELECT Id, ClientName, ClientUsername, ClientEmail, ClientAddress FROM oauth2_0.google_client WHERE ClientUsername='");// ,
-																																			// ClientPassword,
-																																			// ClientAddress,
-																																			// ClientEmail,
-																																			// ClientSecret)
-																																			// VALUES('0',
-																																			// '");
-		sb.append(form.getUsername());
-		sb.append("' AND ClientPassword='");
-		sb.append(form.getPassword());
-		sb.append("';");
-		return sb;
-	}
 }

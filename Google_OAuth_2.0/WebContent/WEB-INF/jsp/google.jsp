@@ -14,8 +14,9 @@
 				<c:when test="${authenticated == true}">
 					<label title="name">${username}</label>
 					<a href="/google/user/logout"
-						style="padding: 0% 0% 0% 90%;"><label title="signin">Sign
-							Out</label></a>
+						style="padding: 0% 0% 0% 90%;"><label title="signin">Sign Out</label></a>
+					<a href="/google/user/oauth"
+						style="padding: 0% 0% 0% 85%;"><label title="oauth">Manage OAuth Accounts</label></a>	
 
 				</c:when>
 				<c:otherwise>

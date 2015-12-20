@@ -1,7 +1,9 @@
 package org.bhavnesh.google.oauth.user;
 
 import java.sql.ResultSet;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
@@ -9,12 +11,12 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.bhavnesh.google.db.DBConnectionManager;
+import org.bhavnesh.google.db.DBQueryManager;
 import org.bhavnesh.google.form.UserLoginForm;
 import org.bhavnesh.google.oauth.security.AESSecurityProvider;
 import org.bhavnesh.google.oauth.security.Constants;
-import org.bhavnesh.google.vo.UserSessinInfoVo;
+import org.bhavnesh.google.vo.ClientVO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -22,13 +24,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 @RequestMapping("/user/oauth")
 public class OAuthUserController {
 	private DBConnectionManager dbConnectionManager = null;
-
 
 	public DBConnectionManager getDbConnectionManager() {
 		return dbConnectionManager;
@@ -38,94 +38,146 @@ public class OAuthUserController {
 	public void setDbConnectionManager(DBConnectionManager dbConnectionManager) {
 		this.dbConnectionManager = dbConnectionManager;
 	}
+
+	@RequestMapping(method = RequestMethod.GET)
+	public String manageOAuthAccount(HttpServletRequest request, ModelMap model) {
+		// get all clients linked to oauth for user account
+		try {
+			String email = (String) request.getSession().getAttribute(Constants.EMAIL);
+			//get ids of all clients linked
+			StringBuilder query = DBQueryManager.createOAuthLinkedAccountQuery(email);
+			ResultSet rs = dbConnectionManager.executeQuery(query);
+			List<String> clientIds = new ArrayList<>();
+			while (rs.next()) {
+				clientIds.add(rs.getString("ClientId"));
+			}
+			//get names of clients
+			query = DBQueryManager.createGetClientQuery(clientIds);
+			rs = dbConnectionManager.executeQuery(query);
+			ClientVO client = null; 
+			List<ClientVO> clients = new ArrayList<>();
+			while(rs.next()){
+				client = new ClientVO();
+				client.setClientId(rs.getString("Id"));
+				client.setClientName(rs.getString("ClientName"));
+				clients.add(client);
+			}
+			if(!clients.isEmpty()){
+				model.addAttribute(Constants.OAUTH_CLIENTS, clients);
+			}
+			return "useroauthclients";
+		} catch (Exception ex) {
+			System.out.println(ex.getMessage());
+		}
+		return "google";
+	}
 	
-	@RequestMapping(method = RequestMethod.GET, value="/{clientId}")
-	public String oAuthUser(@PathVariable("clientId") String clientId, @RequestParam(value = "responseUrl", required = false) String responseUrl, ModelMap model, HttpServletRequest request) {
+	@RequestMapping(method = RequestMethod.POST, value="/remove/{clientId}")
+	public String removeOAuthClient(@PathVariable("clientId") String clientId, HttpServletRequest request, ModelMap model){
+		try{
+			
+		} catch(Exception ex){
+			System.out.println(ex.getMessage());
+		}
+		
+		return "google";
+	}
+
+	@RequestMapping(method = RequestMethod.GET, value = "/{clientId}")
+	public String oAuthUser(@PathVariable("clientId") String clientId,
+			@RequestParam(value = "responseUrl", required = false) String responseUrl, ModelMap model,
+			HttpServletRequest request) {
 		model.addAttribute("clientId", clientId);
 		model.addAttribute("responseUrl", responseUrl);
 		// verify clientid and redirect to login page
-		StringBuilder query = createClientInfoQuery(clientId);
+		StringBuilder query = DBQueryManager.createClientInfoQuery(clientId);
 		ResultSet rs = dbConnectionManager.executeQuery(query);
-		try{
-			if(rs.next()){
-				if(request.getSession() != null && request.getSession().getAttribute(Constants.AUTHENTICATED) != null && (boolean) request.getSession().getAttribute(Constants.AUTHENTICATED) == true){
-					//user already in session, redirect to access granting page
+		try {
+			if (rs.next()) {
+				if (request.getSession() != null && request.getSession().getAttribute(Constants.AUTHENTICATED) != null
+						&& (boolean) request.getSession().getAttribute(Constants.AUTHENTICATED) == true) {
+					// user already in session, redirect to access granting page
 					model.addAttribute("clientName", rs.getString("ClientName"));
 					return "oauthusergrantingpage";
 				} else {
-					//redirect user to login page 
+					// redirect user to login page
 					return "oauthuserloginpage";
 				}
 			} else {
-				model.addAttribute(Constants.DISPLAY_MESSAGE, "Warning! Unknown third party user trying to access your private information.");
+				model.addAttribute(Constants.DISPLAY_MESSAGE,
+						"Warning! Unknown third party user trying to access your private information.");
 			}
-		} catch(Exception ex){
+		} catch (Exception ex) {
 			System.out.println(ex.getMessage());
 			model.addAttribute(Constants.DISPLAY_MESSAGE, "Failure to load information for third party requester");
 		}
 		return "unknownclientpage";
 	}
-	
-	@RequestMapping(method = RequestMethod.POST, value="/{clientId}/userlogin")
-	public String oAuthUserLogin(@ModelAttribute("oauthuserloginform") UserLoginForm form, @PathVariable("clientId") String clientId, ModelMap model, HttpServletRequest request){
+
+	@RequestMapping(method = RequestMethod.POST, value = "/{clientId}/userlogin")
+	public String oAuthUserLogin(@ModelAttribute("oauthuserloginform") UserLoginForm form,
+			@PathVariable("clientId") String clientId, ModelMap model, HttpServletRequest request) {
 		HttpSession session = request.getSession();
-		StringBuilder query = createClientInfoQuery(clientId);
+		StringBuilder query = DBQueryManager.createClientInfoQuery(clientId);
 		ResultSet rs = dbConnectionManager.executeQuery(query);
-		try{
-			if(rs.next()){
-				//save client info 
+		try {
+			if (rs.next()) {
+				// save client info
 				String clientName = rs.getString("ClientName");
 				model.addAttribute("clientName", clientName);
 				request.getSession().setAttribute("clientName", clientName);
 			} else {
-				model.addAttribute(Constants.DISPLAY_MESSAGE, "Warning! Unknown third party user trying to access your private information.");
+				model.addAttribute(Constants.DISPLAY_MESSAGE,
+						"Warning! Unknown third party user trying to access your private information.");
 				return "unknownclientpage";
 			}
 			String responseUrl = form.getResponseUrl();
 			model.addAttribute("clientId", clientId);
 			session.setAttribute(Constants.CLIENT_ID, clientId);
 			session.setAttribute(Constants.RESPONSE_URL, responseUrl);
-			
-			//do user authentication
-			query = createUserLoginQuery(form);
+
+			// do user authentication
+			query = DBQueryManager.createUserLoginQuery(form);
 			rs = dbConnectionManager.executeQuery(query);
-			if(rs.next()){
-				//user login success
+			if (rs.next()) {
+				// user login success
 				String firstName = rs.getString("FirstName");
-				
-				
+
 				session.setAttribute(Constants.AUTHENTICATED, true);
-				
+
 				session.setAttribute(Constants.EMAIL, rs.getString("EMail"));
 				session.setAttribute(Constants.FIRST_NAME, firstName);
 				session.setAttribute(Constants.LAST_NAME, rs.getString("LastName"));
-				
-				//model.addAttribute(Constants.USER_SESSION_INFO, userInfo);
+
+				// model.addAttribute(Constants.USER_SESSION_INFO, userInfo);
 				model.addAttribute(Constants.AUTHENTICATED, true);
 				model.addAttribute("displayname", firstName);
-				
+
 				return "oauthusergrantingpage";
 			} else {
-				
+
 				model.addAttribute("responseUrl", responseUrl);
 				model.addAttribute(Constants.DISPLAY_MESSAGE, "Failed to Login! Please try Again.");
 				return "oauthuserloginpage";
 			}
-		} catch(Exception ex){
+		} catch (Exception ex) {
 			System.out.println(ex.getMessage());
 		}
-		
+
 		model.addAttribute(Constants.DISPLAY_MESSAGE, "Failed to Login! Please try Again.");
 		return "oauthuserlogin";
 	}
-	
-	@RequestMapping(method = RequestMethod.GET, value="/{clientId}/userlogout")
-	public String oAuthUserLogout(@PathVariable("clientId") String clientId, ModelMap model, HttpServletRequest request, HttpServletResponse response){
+
+	@RequestMapping(method = RequestMethod.GET, value = "/{clientId}/userlogout")
+	public String oAuthUserLogout(@PathVariable("clientId") String clientId, ModelMap model, HttpServletRequest request,
+			HttpServletResponse response) {
 		return "";
 	}
-	
-	@RequestMapping(method = RequestMethod.POST, value="/{clientId}/permission")
-	public String grantPermission(@PathVariable("clientId") String clientId, @RequestParam(value = "permissionGrant", required = true) boolean permissionGrant, ModelMap model, HttpServletRequest request, HttpServletResponse response){
+
+	@RequestMapping(method = RequestMethod.POST, value = "/{clientId}/permission")
+	public String grantPermission(@PathVariable("clientId") String clientId,
+			@RequestParam(value = "permissionGrant", required = true) boolean permissionGrant, ModelMap model,
+			HttpServletRequest request, HttpServletResponse response) {
 		try {
 			HttpSession session = request.getSession();
 			AESSecurityProvider aesSecurityProvider = null;
@@ -138,39 +190,50 @@ public class OAuthUserController {
 					// generate temporary authToken and store in db
 					// token has timeout of 5 min.
 					// extract client secret for encryption of temp token
-					StringBuilder query = createClientSecretQuery(clientId);
+					StringBuilder query = DBQueryManager.createClientSecretQuery(clientId);
 					ResultSet rs = dbConnectionManager.executeQuery(query);
-					if(rs.next()){
+					if (rs.next()) {
 						UUID uuid = UUID.randomUUID();
 						aesSecurityProvider = new AESSecurityProvider(rs.getString("ClientSecret"));
-						String encryptedToken = aesSecurityProvider.encrypt(uuid.toString());
-						
-						query = createTempTokenQuery(clientId, (String) session.getAttribute(Constants.EMAIL), uuid.toString(), Long.toString((Calendar.getInstance().getTimeInMillis())+(5*60*1000)));
+
+						query = DBQueryManager.createTempTokenQuery(clientId,
+								(String) session.getAttribute(Constants.EMAIL), uuid.toString(),
+								Long.toString((Calendar.getInstance().getTimeInMillis()) + (5 * 60 * 1000)));
 						int res = dbConnectionManager.executeUpdate(query);
-						if(res == 1){
+						if (res == 1) {
 							// success
-							responseUrl += "?" + Constants.ACCESS + "=true&" + Constants.SUCCESS + "=true&" + Constants.TOKEN + "=" + encryptedToken;
-						} else if(res == 0) {//rs == 0
+							String encryptedToken = aesSecurityProvider.encrypt(uuid.toString());
+							responseUrl += "?" + Constants.ACCESS + "=true&" + Constants.SUCCESS + "=true&"
+									+ Constants.TOKEN + "=" + encryptedToken;
+						} else if (res == 0) {// rs == 0
 							// failure
 							responseUrl += "?" + Constants.ACCESS + "=true&" + Constants.SUCCESS + "=false";
-						} else if(res == -1) {
-							//duplicate entry in db, invalid case
+						} else if (res == -1) {
+							// duplicate entry in db, invalid case
 							responseUrl += "?" + Constants.ACCESS + "=false&" + Constants.SUCCESS + "=false";
 						}
 					} else {
-						//client secret missing in db
+						// client secret missing in db
 						responseUrl += "?" + Constants.ACCESS + "=false&" + Constants.SUCCESS + "=false";
 					}
-					//logout user from google account for security automatically
-					//session.invalidate();
+
 				}
-				return "redirect:" + responseUrl;
+				// logout user from google account for security
+				// automatically
+				// session.invalidate();
+
+				// return "redirect:" + responseUrl;
+				model.addAttribute("redirectUrl", responseUrl);
+				model.addAttribute(Constants.DISPLAY_MESSAGE,
+						"Authorization request complete. Logging out user from current session. Redirecting back to host website. Please wait...");
+				return "oauthredirectpage";
+
 			} else {
 				model.addAttribute("clientId", clientId);
 				model.addAttribute(Constants.DISPLAY_MESSAGE, "Failed to Login! Please try Again.");
 				return "oauthuserlogin";
 			}
-			
+
 		} catch (Exception ex) {
 			System.out.println(ex.getMessage());
 		}
@@ -179,70 +242,60 @@ public class OAuthUserController {
 		model.addAttribute("clientId", clientId);
 		return "oauthusergrantingpage";
 	}
-	
-	@RequestMapping(method = RequestMethod.GET, value="/{clientId}/requestoauthtoken")
-	public String getOAuthToken(@PathVariable("clientId") String clientId, ModelMap model, HttpServletRequest request, HttpServletResponse response){
-		String encryptedToken = (String) request.getAttribute(Constants.TOKEN);
-		
-		
+
+	@RequestMapping(method = RequestMethod.GET, value = "/{clientId}/requestoauthtoken")
+	public String getOAuthToken(@PathVariable("clientId") String clientId, @RequestParam("token") String encryptedToken,
+			ModelMap model, HttpServletRequest request, HttpServletResponse response) {
+
+		try {
+			// find client secret from db
+			StringBuilder query = DBQueryManager.createClientSecretQuery(clientId);
+			ResultSet rs = dbConnectionManager.executeQuery(query);
+			if (rs.next()) {
+				// valid clientId, get secret key for client form db for
+				// encryption/decryption of token
+				String clientSecret = rs.getString("ClientSecret");
+				AESSecurityProvider aesSecurityProvider = new AESSecurityProvider(clientSecret);
+
+				// decrypt token to see if valid
+				String decryptedToken = aesSecurityProvider.decrypt(encryptedToken);
+				query = DBQueryManager.createTokenTimeoutQuery(decryptedToken, clientId);
+				rs = dbConnectionManager.executeQuery(query);
+				if (rs.next()) {
+					// token valid, check expiry
+					String timeout = rs.getString("Timeout");
+					String email = rs.getString("EMail");
+					Calendar now = Calendar.getInstance();
+					Calendar tokenExpiry = Calendar.getInstance();
+					tokenExpiry.setTimeInMillis(Long.valueOf(timeout).longValue());
+					if (!tokenExpiry.before(now)) {
+						// valid token, generate oauth token
+						UUID uuid = UUID.randomUUID();
+						query = DBQueryManager.createNewOAuthTokenQuery(clientId, email, uuid.toString());
+						int result = dbConnectionManager.executeUpdate(query);
+						if (result == 1) {
+
+						} else if (result == 0) {
+
+						} else if (result == -1) {
+
+						}
+						// delete temp token
+
+					} else {
+						// expired token
+
+					}
+				} else {
+					// invalid token
+
+				}
+			} else {
+				// invalid client id
+			}
+		} catch (Exception ex) {
+			System.out.println(ex.getMessage());
+		}
 		return "";
-	}
-	
-	private StringBuilder createClientInfoQuery(String clientId){
-		StringBuilder sb = new StringBuilder();
-		sb.append("SELECT ClientName FROM oauth2_0.google_client WHERE Id='");
-		sb.append(clientId);
-		sb.append("';");
-		return sb;
-	}
-	
-	private StringBuilder createUserLoginQuery(UserLoginForm form){
-		StringBuilder sb = new StringBuilder();
-		sb.append("SELECT FirstName, LastName , EMail FROM oauth2_0.google_user WHERE EMail='");
-		sb.append(form.getEmail());
-		sb.append("' AND Password='");
-		sb.append(form.getPassword());
-		sb.append("';");
-		return sb;
-	}
-	
-	private StringBuilder createTempTokenQuery(String clientId, String eMail, String token, String timeout){
-		StringBuilder sb = new StringBuilder();
-		sb.append("INSERT INTO oauth2_0.google_temp_token (Id, ClientId, EMail, Token, Timeout) VALUES ('0', '");
-		sb.append(clientId);
-		sb.append("' ,'");
-		sb.append(eMail);
-		sb.append("' ,'");
-		sb.append(token);
-		sb.append("' ,'");
-		sb.append(timeout);
-		sb.append("');");
-		return sb;
-	}
-	
-	private StringBuilder createClientSecretQuery(String clientId){
-		StringBuilder sb = new StringBuilder();
-		sb.append("SELECT ClientSecret FROM oauth2_0.google_client where Id='");
-		sb.append(clientId);
-		sb.append("';");
-		return sb;
-	}
-	
-	private StringBuilder createNewOAuthTokenQuery(String clientId, String eMail, String token){
-		StringBuilder sb = new StringBuilder();
-		sb.append("INSERT INTO oauth2_0.google_oauth_token (Id, ClientId, EMail, OAuthToken) VALUES ('0', '");
-		sb.append(clientId);
-		sb.append("' ,'");
-		sb.append(eMail);
-		sb.append("' ,'");
-		sb.append(token);
-		sb.append("');");
-		return sb;
-	}
-	
-	private StringBuilder createValidateOAuthTokenQuery(){
-		StringBuilder sb = new StringBuilder();
-		
-		return sb;
 	}
 }

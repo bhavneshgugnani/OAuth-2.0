@@ -12,6 +12,8 @@ public class Constants {
 	
 	public static final String CLIENT_ID = "clientid";
 	
+	public static final String OAUTH_CLIENTS = "oauthclients";
+	
 	public static final String DISPLAY_MESSAGE = "message";
 	
 	public static final String USER_SESSION_INFO = "usersessioninfo";

@@ -6,6 +6,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.bhavnesh.google.db.DBConnectionManager;
+import org.bhavnesh.google.db.DBQueryManager;
 import org.bhavnesh.google.form.SingleValueForm;
 import org.bhavnesh.google.form.UserLoginForm;
 import org.bhavnesh.google.oauth.security.Constants;
@@ -21,7 +22,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @RequestMapping("/user")
 public class UserLoginController {
 	private DBConnectionManager dbConnectionManager = null;
-
 
 	public DBConnectionManager getDbConnectionManager() {
 		return dbConnectionManager;
@@ -40,26 +40,27 @@ public class UserLoginController {
 	}
 
 	@RequestMapping(value = "/password", method = RequestMethod.POST)
-	public String password(@ModelAttribute("singlevalueform") SingleValueForm form, ModelMap model, HttpServletRequest request) {
+	public String password(@ModelAttribute("singlevalueform") SingleValueForm form, ModelMap model,
+			HttpServletRequest request) {
 		// Store username, Process password page
 		String email = form.getValue();
-		StringBuilder query = createUsernameQuery(email);
+		StringBuilder query = DBQueryManager.createUsernameQuery(email);
 		String firstName = null, lastName = null;
 		ResultSet rs = dbConnectionManager.executeQuery(query);
 		try {
-			if(rs.next()) {
+			if (rs.next()) {
 				firstName = rs.getString("FirstName");
 				lastName = rs.getString("LastName");
-				
+
 				UserSessinInfoVo userSessionInfo = new UserSessinInfoVo(firstName, lastName, email);
 				HttpSession session = request.getSession();
-				//session.setAttribute("email", email);
+				// session.setAttribute("email", email);
 				session.setAttribute("authenticated", false);
-				session.setAttribute(Constants.USER_SESSION_INFO, userSessionInfo);
-				
-				//model.addAttribute("firstName", firstName);
-				//model.addAttribute("lastName", lastName);
-				//model.addAttribute("email", email);
+				session.setAttribute(Constants.EMAIL, email);
+
+				model.addAttribute(Constants.FIRST_NAME, firstName);
+				model.addAttribute(Constants.LAST_NAME, lastName);
+				model.addAttribute(Constants.EMAIL, email);
 				model.addAttribute(Constants.USER_SESSION_INFO, userSessionInfo);
 				return "signinpasswordpage";
 			}
@@ -70,27 +71,29 @@ public class UserLoginController {
 		return "signinusernamepage";
 	}
 
-	@RequestMapping(value = "/login", method = RequestMethod.GET)
-	public String login(@ModelAttribute("userloginform") UserLoginForm form, ModelMap model, HttpServletRequest request) {
+	@RequestMapping(value = "/login", method = RequestMethod.POST)
+	public String login(@ModelAttribute("singlevalueform") SingleValueForm form, ModelMap model,
+			HttpServletRequest request) {
 		// Validate Password, Process Main page
-		StringBuilder query = createLoginQuery(form.getEmail(), form.getPassword());
+		String email = (String) request.getSession().getAttribute(Constants.EMAIL);
+		StringBuilder query = DBQueryManager.createLoginQuery(email, form.getValue());
 		ResultSet rs = dbConnectionManager.executeQuery(query);
 		String firstName = null, lastName = null;
 		try {
-			if(rs.next()) {
+			if (rs.next()) {
 				firstName = rs.getString("FirstName");
 				lastName = rs.getString("LastName");
-				
+
 				HttpSession session = request.getSession();
 				session.setAttribute("authenticated", true);
 				session.setAttribute("firstname", firstName);
 				session.setAttribute("lastname", lastName);
-				
+
 				model.addAttribute("authenticated", true);
 				model.addAttribute("firstName", firstName);
 				model.addAttribute("lastName", lastName);
 				model.addAttribute("email", session.getAttribute("email"));
-				return "signinpasswordpage";
+				return "google";
 			}
 		} catch (Exception ex) {
 			ex.printStackTrace();
@@ -98,29 +101,12 @@ public class UserLoginController {
 		model.addAttribute("message", "Invalid Password! Please try again.");
 		return "signinusernamepage";
 	}
-	
+
 	@RequestMapping(value = "/logout", method = RequestMethod.GET)
-	public String logout(ModelMap model,HttpServletRequest request) {
+	public String logout(ModelMap model, HttpServletRequest request) {
 		model.addAttribute("authenticated", false);
 		request.getSession().invalidate();
 		return "google";
 	}
 
-	private StringBuilder createUsernameQuery(String email) {
-		StringBuilder sb = new StringBuilder();
-		sb.append("SELECT FirstName, LastName FROM oauth2_0.google_user WHERE EMail='");
-		sb.append(email);
-		sb.append("';");
-		return sb;
-	}
-
-	private StringBuilder createLoginQuery(String email, String password) {
-		StringBuilder sb = new StringBuilder();
-		sb.append("SELECT FirstName, LastName FROM oauth2_0.google_user WHERE EMail='");
-		sb.append(email);
-		sb.append("' AND Password='");
-		sb.append(password);
-		sb.append("';");
-		return sb;
-	}
 }
