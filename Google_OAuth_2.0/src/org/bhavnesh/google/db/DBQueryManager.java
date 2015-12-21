@@ -95,7 +95,7 @@ public class DBQueryManager {
 
 	public static StringBuilder createTokenTimeoutQuery(String token, String clientId) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("SELECT Timeout FROM oauth2_0.google_temp_token WHERE Token='");
+		sb.append("SELECT Timeout, EMail FROM oauth2_0.google_temp_token WHERE Token='");
 		sb.append(token);
 		sb.append("' AND ClientId='");
 		sb.append(clientId);

@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -24,28 +26,33 @@ public class OAuthUserController {
 			@RequestParam(value = Constants.SUCCESS, required = true) String success,
 			@RequestParam(value = Constants.TOKEN, required = false) String token, ModelMap model,
 			HttpServletRequest request) {
-		if (success == null || success.length() <= 0 || Boolean.parseBoolean(success) == false) {
-			// display error on main page
-			model.addAttribute(Constants.MESSAGE, "Authorization failed! Something went wrong. Please try again.");
-		} else {
-			if (access == null || access.length() <= 0 || Boolean.parseBoolean(access) == false) {
-				// display access fail page
-				model.addAttribute(Constants.MESSAGE,
-						"Authorization Failed! Failed to load user information. Please try again or create a new account");
-			} else if (Boolean.parseBoolean(access) == true) {
-				if (token == null || token.length() <= 0) {
-					// no token in request, failed request
+		try {
+			if (success == null || success.length() <= 0 || Boolean.parseBoolean(success) == false) {
+				// display error on main page
+				model.addAttribute(Constants.MESSAGE, "Authorization failed! Something went wrong. Please try again.");
+			} else {
+				if (access == null || access.length() <= 0 || Boolean.parseBoolean(access) == false) {
+					// display access fail page
 					model.addAttribute(Constants.MESSAGE,
-							"No Token received. Authorization failure. Please try again to generate new token.");
-				} else {
-					// token received
-					HttpSession session = request.getSession();
-					session.setAttribute(Constants.TOKEN, token);
-					model.addAttribute(Constants.MESSAGE,
-							"Authorization Token Received. Please wait while OAuth Token is being generated for this request.");
-					return "oauthtokenreceivedpage";
+							"Authorization Failed! Failed to load user information. Please try again or create a new account");
+				} else if (Boolean.parseBoolean(access) == true) {
+					if (token == null || token.length() <= 0) {
+						// no token in request, failed request
+						model.addAttribute(Constants.MESSAGE,
+								"No Token received. Authorization failure. Please try again to generate new token.");
+					} else {
+						// token received
+						HttpSession session = request.getSession();
+						session.setAttribute(Constants.TOKEN, URLDecoder.decode(token.trim(), "UTF-8"));
+						System.out.println("STACKOVERFLOW : Temp Token = *******" + URLDecoder.decode(token.trim(), "UTF-8") + "********");
+						model.addAttribute(Constants.MESSAGE,
+								"Authorization Token Received. Please wait while OAuth Token is being generated for this request.");
+						return "oauthtokenreceivedpage";
+					}
 				}
 			}
+		} catch (Exception ex) {
+			System.out.println(ex.getMessage());
 		}
 		return "stackoverflow";
 	}
@@ -59,7 +66,14 @@ public class OAuthUserController {
 		StringBuilder result = new StringBuilder();
 		BufferedReader rd = null;
 		try {
-			URL url = new URL(Constants.OAUTH_REQUEST_URL + "?token=" + token);
+			URL url = new URL(Constants.OAUTH_REQUEST_URL + "?token=" + URLEncoder.encode(token.trim(), "UTF-8"));// java.net.URLEncoder.encode(Constants.OAUTH_REQUEST_URL
+																											// +
+																											// "?token="
+																											// +
+																											// token,
+																											// "UTF-8"));
+			// String url = Constants.OAUTH_REQUEST_URL + "?token=" + token;
+			// String encodedURL=java.net.URLEncoder.encode(url,"UTF-8");
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 			conn.addRequestProperty(Constants.TOKEN, token);
 			conn.setRequestMethod("GET");

@@ -1,5 +1,7 @@
 package org.bhavnesh.google.oauth.user;
 
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -209,14 +211,15 @@ public class OAuthUserController {
 						aesSecurityProvider = new AESSecurityProvider(rs.getString("ClientSecret"));
 
 						query = DBQueryManager.createTempTokenQuery(clientId,
-								(String) session.getAttribute(Constants.EMAIL), uuid.toString(),
+								(String) session.getAttribute(Constants.EMAIL), uuid.toString().trim(),
 								Long.toString((Calendar.getInstance().getTimeInMillis()) + (5 * 60 * 1000)));
 						int res = dbConnectionManager.executeUpdate(query);
 						if (res == 1) {
 							// success
-							String encryptedToken = aesSecurityProvider.encrypt(uuid.toString());
+							String encryptedToken = aesSecurityProvider.encrypt(uuid.toString().trim());
 							responseUrl += "?" + Constants.ACCESS + "=true&" + Constants.SUCCESS + "=true&"
-									+ Constants.TOKEN + "=" + encryptedToken;
+									+ Constants.TOKEN + "=" + URLEncoder.encode(encryptedToken.trim(), "UTF-8");
+							System.out.println("GOOGLE : Temp Token = *******" + encryptedToken.trim() + "********");
 						} else if (res == 0) {// rs == 0
 							// failure
 							responseUrl += "?" + Constants.ACCESS + "=true&" + Constants.SUCCESS + "=false";
@@ -270,7 +273,7 @@ public class OAuthUserController {
 				AESSecurityProvider aesSecurityProvider = new AESSecurityProvider(clientSecret);
 
 				// decrypt token to see if valid
-				String decryptedToken = aesSecurityProvider.decrypt(encryptedToken);
+				String decryptedToken = aesSecurityProvider.decrypt(URLDecoder.decode(encryptedToken, "UTF-8"));
 				query = DBQueryManager.createTokenTimeoutQuery(decryptedToken, clientId);
 				rs = dbConnectionManager.executeQuery(query);
 				if (rs.next()) {
@@ -283,27 +286,34 @@ public class OAuthUserController {
 					if (!tokenExpiry.before(now)) {
 						// valid token, generate oauth token
 						UUID uuid = UUID.randomUUID();
-						query = DBQueryManager.createNewOAuthTokenQuery(clientId, email, uuid.toString());
+						query = DBQueryManager.createNewOAuthTokenQuery(clientId, email, uuid.toString().trim());
 						int result = dbConnectionManager.executeUpdate(query);
 						if (result == 1) {
-
+							// delete temp token
+							
+							encryptedToken = aesSecurityProvider.encrypt(uuid.toString().trim());
+							request.setAttribute(Constants.TOKEN, URLEncoder.encode(encryptedToken.trim(), "UTF-8"));
+							request.setAttribute(Constants.SUCCESS, true);
+							System.out.println("GOOGLE : Temp Token = *******" + encryptedToken.trim() + "********");
 						} else if (result == 0) {
-
-						} else if (result == -1) {
-
+							// no row affected in table 
+							request.setAttribute(Constants.SUCCESS, false);
+							request.setAttribute(Constants.DISPLAY_MESSAGE, "OAuth token generation failed. Please try again.");
 						}
-						// delete temp token
-
 					} else {
 						// expired token
-
+						request.setAttribute(Constants.SUCCESS, false);
+						request.setAttribute(Constants.DISPLAY_MESSAGE, "Expired token.");
 					}
 				} else {
 					// invalid token
-
+					request.setAttribute(Constants.SUCCESS, false);
+					request.setAttribute(Constants.DISPLAY_MESSAGE, "Invalid Token");
 				}
 			} else {
 				// invalid client id
+				request.setAttribute(Constants.SUCCESS, false);
+				request.setAttribute(Constants.DISPLAY_MESSAGE, "Invalid client id.");
 			}
 		} catch (Exception ex) {
 			System.out.println(ex.getMessage());
