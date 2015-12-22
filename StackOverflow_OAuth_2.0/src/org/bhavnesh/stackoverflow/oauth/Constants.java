@@ -13,5 +13,5 @@ public class Constants {
 	public static final String TOKEN = "token";
 	public static final String SUCCESS = "success";
 	
-	public static final String MESSAGE = "message"; 
+	public static final String DISPLAY_MESSAGE = "message"; 
 }

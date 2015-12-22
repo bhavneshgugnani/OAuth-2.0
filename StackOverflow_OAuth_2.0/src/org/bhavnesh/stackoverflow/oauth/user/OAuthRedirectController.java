@@ -19,7 +19,7 @@ public class OAuthRedirectController {
 	public String redirectToGoogle(ModelMap model, HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String redirectUrl = Constants.OAUTH_REDIRECT_URL + "?responseUrl=" + Constants.RESPONSE_URL;
 		model.addAttribute("redirectUrl", redirectUrl);
-		model.addAttribute(Constants.MESSAGE, "Redirecting to Google page for Authorization. Please wait...");
+		model.addAttribute(Constants.DISPLAY_MESSAGE, "Redirecting to Google page for Authorization. Please wait...");
 		return "oauthredirectpage";
 	}
 }

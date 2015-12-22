@@ -1,16 +1,17 @@
 package org.bhavnesh.stackoverflow.oauth.user;
 
 import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.bhavnesh.stackoverflow.db.DBQueryManager;
 import org.bhavnesh.stackoverflow.oauth.Constants;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -30,23 +31,25 @@ public class OAuthUserController {
 		try {
 			if (success == null || success.length() <= 0 || Boolean.parseBoolean(success) == false) {
 				// display error on main page
-				model.addAttribute(Constants.MESSAGE, "Authorization failed! Something went wrong. Please try again.");
+				model.addAttribute(Constants.DISPLAY_MESSAGE,
+						"Authorization failed! Something went wrong. Please try again.");
 			} else {
 				if (access == null || access.length() <= 0 || Boolean.parseBoolean(access) == false) {
 					// display access fail page
-					model.addAttribute(Constants.MESSAGE,
+					model.addAttribute(Constants.DISPLAY_MESSAGE,
 							"Authorization Failed! Failed to load user information. Please try again or create a new account");
 				} else if (Boolean.parseBoolean(access) == true) {
 					if (token == null || token.length() <= 0) {
 						// no token in request, failed request
-						model.addAttribute(Constants.MESSAGE,
+						model.addAttribute(Constants.DISPLAY_MESSAGE,
 								"No Token received. Authorization failure. Please try again to generate new token.");
 					} else {
 						// token received
 						HttpSession session = request.getSession();
 						session.setAttribute(Constants.TOKEN, URLDecoder.decode(token.trim(), "UTF-8"));
-						System.out.println("STACKOVERFLOW : Temp Token = *******" + URLDecoder.decode(token.trim(), "UTF-8") + "********");
-						model.addAttribute(Constants.MESSAGE,
+						System.out.println("STACKOVERFLOW : Temp Token = *******"
+								+ URLDecoder.decode(token.trim(), "UTF-8") + "********");
+						model.addAttribute(Constants.DISPLAY_MESSAGE,
 								"Authorization Token Received. Please wait while OAuth Token is being generated for this request.");
 						return "oauthtokenreceivedpage";
 					}
@@ -66,41 +69,37 @@ public class OAuthUserController {
 		// provided by google before token timeout
 		StringBuilder result = new StringBuilder();
 		BufferedReader rd = null;
+		HttpURLConnection conn = null;
 		try {
 			URL url = new URL(Constants.OAUTH_REQUEST_URL + "?token=" + URLEncoder.encode(token.trim(), "UTF-8"));// java.net.URLEncoder.encode(Constants.OAUTH_REQUEST_URL
-																											// +
-																											// "?token="
-																											// +
-																											// token,
-																											// "UTF-8"));
+			// +
+			// "?token="
+			// +
+			// token,
+			// "UTF-8"));
 			// String url = Constants.OAUTH_REQUEST_URL + "?token=" + token;
 			// String encodedURL=java.net.URLEncoder.encode(url,"UTF-8");
-			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-			conn.setRequestMethod("GET");
-			conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+			conn = (HttpURLConnection) url.openConnection();
 
-			//conn.setRequestProperty("Content-Length", Integer.toString(url.getBytes().length));
-			conn.setRequestProperty("Content-Language", "en-US");  
-			conn.setUseCaches(false);
-			conn.setDoOutput(true);
-			
-			rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-			String line;
-			while ((line = rd.readLine()) != null) {
-				result.append(line);
+			// get header fields for result
+			Map<String, List<String>> headerFields = conn.getHeaderFields();
+			boolean success = Boolean.parseBoolean(headerFields.get(Constants.SUCCESS).get(0));
+			if (success) {
+				// encrypt and save token for future access
+				String oauthToken = headerFields.get(Constants.TOKEN).get(0);
+				StringBuilder query = DBQueryManager.createAddOAuthToken();
+
+				// remove temp token form session
+				session.removeAttribute(Constants.TOKEN);
+			} else {
+				// failure, display message on UI
+				model.addAttribute(Constants.DISPLAY_MESSAGE, headerFields.get(Constants.DISPLAY_MESSAGE).get(0));
+				model.addAttribute(Constants.SUCCESS, "false");
 			}
-			System.out.println(line);
+
 		} catch (Exception ex) {
 			System.out.println(ex.getMessage());
-		} finally {
-			try {
-				rd.close();
-			} catch (Exception ex) {
-				System.out.println(ex.getMessage());
-			}
 		}
-
-		System.out.println(result.toString());
 		return "oauthresultpage";
 	}
 }

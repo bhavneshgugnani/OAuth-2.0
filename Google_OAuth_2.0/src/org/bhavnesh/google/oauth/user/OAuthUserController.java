@@ -258,9 +258,13 @@ public class OAuthUserController {
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/{clientId}/requestoauthtoken")
-	public String getOAuthToken(@PathVariable("clientId") String clientId, @RequestParam("token") String token,
+	public void getOAuthToken(@PathVariable("clientId") String clientId, @RequestParam("token") String token,
 			ModelMap model, HttpServletRequest request, HttpServletResponse response) {
-
+		// below parameters are set as header fields in response
+		String oauthToken = "";
+		String message = "";
+		boolean success = false;
+		
 		try {
 			// find client secret from db
 			StringBuilder query = DBQueryManager.createClientSecretQuery(clientId);
@@ -293,32 +297,36 @@ public class OAuthUserController {
 							query = DBQueryManager.createDeleteTempTokenQuery(encryptedToken, clientId);
 							dbConnectionManager.executeUpdate(query);
 							
-							request.setAttribute(Constants.TOKEN, URLEncoder.encode(uuid.toString().trim(), "UTF-8"));
-							request.setAttribute(Constants.SUCCESS, true);
+							oauthToken = URLEncoder.encode(uuid.toString().trim(), "UTF-8");
+							success = true;
 							System.out.println("GOOGLE : OAuth Token = *******" + uuid.toString().trim() + "********");
 						} else if (result == 0) {
 							// no row affected in table 
-							request.setAttribute(Constants.SUCCESS, false);
-							request.setAttribute(Constants.DISPLAY_MESSAGE, "OAuth token generation failed. Please try again.");
+							success = false;
+							message = "OAuth token generation failed. Please try again.";
 						}
 					} else {
 						// expired token
-						request.setAttribute(Constants.SUCCESS, false);
-						request.setAttribute(Constants.DISPLAY_MESSAGE, "Expired token.");
+						success = false;
+						message = "Expired token.";
 					}
 				} else {
 					// invalid token
-					request.setAttribute(Constants.SUCCESS, false);
-					request.setAttribute(Constants.DISPLAY_MESSAGE, "Invalid Token");
+					success = false;
+					message = "Invalid Token";
 				}
 			} else {
 				// invalid client id
-				request.setAttribute(Constants.SUCCESS, false);
-				request.setAttribute(Constants.DISPLAY_MESSAGE, "Invalid client id.");
+				success = false;
+				message = "Invalid client id.";
 			}
 		} catch (Exception ex) {
 			System.out.println(ex.getMessage());
+		} finally {
+			// add final results to response header 
+			response.setHeader(Constants.TOKEN, oauthToken);
+			response.setHeader(Constants.SUCCESS, String.valueOf(success));
+			response.setHeader(Constants.DISPLAY_MESSAGE, message);
 		}
-		return "bhavnesh";
 	}
 }
