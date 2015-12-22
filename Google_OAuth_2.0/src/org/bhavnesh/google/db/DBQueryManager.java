@@ -189,4 +189,14 @@ public class DBQueryManager {
 		sb.append("';");
 		return sb;
 	}
+	
+	public static final StringBuilder createDeleteTempTokenQuery(String token, String clientId){
+		StringBuilder sb = new StringBuilder();
+		sb.append("DELETE FROM oauth2_0.google_temp_token WHERE Token='");
+		sb.append(token);
+		sb.append("' AND ClientId='");
+		sb.append(clientId);
+		sb.append("';");
+		return sb;
+	}
 }

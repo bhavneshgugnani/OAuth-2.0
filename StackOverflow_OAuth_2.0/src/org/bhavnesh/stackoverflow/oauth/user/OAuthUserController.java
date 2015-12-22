@@ -1,6 +1,7 @@
 package org.bhavnesh.stackoverflow.oauth.user;
 
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -75,8 +76,14 @@ public class OAuthUserController {
 			// String url = Constants.OAUTH_REQUEST_URL + "?token=" + token;
 			// String encodedURL=java.net.URLEncoder.encode(url,"UTF-8");
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-			conn.addRequestProperty(Constants.TOKEN, token);
 			conn.setRequestMethod("GET");
+			conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+
+			//conn.setRequestProperty("Content-Length", Integer.toString(url.getBytes().length));
+			conn.setRequestProperty("Content-Language", "en-US");  
+			conn.setUseCaches(false);
+			conn.setDoOutput(true);
+			
 			rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 			String line;
 			while ((line = rd.readLine()) != null) {
@@ -94,6 +101,6 @@ public class OAuthUserController {
 		}
 
 		System.out.println(result.toString());
-		return "oauthtokenreceivedpage";
+		return "oauthresultpage";
 	}
 }
