@@ -74,7 +74,7 @@ public class DBConnectionManager {
 	}
 
 	public int executeUpdate(StringBuilder query) {
-		int rs = -1;
+		int rs = 0;
 		try {
 			rs = conn.createStatement().executeUpdate(query.toString());
 		} catch (Exception ex) {

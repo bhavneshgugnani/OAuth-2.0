@@ -14,4 +14,10 @@ public class Constants {
 	public static final String SUCCESS = "success";
 	
 	public static final String DISPLAY_MESSAGE = "message"; 
+	
+	public static final String AUTHENTICATED = "authenticated";
+	
+	public static final String USERNAME = "username";
+	
+	public static final String LINKED = "linked";
 }

@@ -23,5 +23,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="C:/Program Files/apache-tomcat-7.0.65/lib/servlet-api.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Bhavnesh Gugnani/.m2/repository/mysql/mysql-connector-java/5.1.6/mysql-connector-java-5.1.6.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

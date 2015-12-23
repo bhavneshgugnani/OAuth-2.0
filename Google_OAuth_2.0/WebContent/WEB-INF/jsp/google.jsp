@@ -1,4 +1,4 @@
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
 	pageEncoding="ISO-8859-1"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
@@ -17,6 +17,8 @@
 						style="padding: 0% 0% 0% 90%;"><label title="signout">Sign Out</label></a>
 					<a href="/google/user/oauth"
 						style="padding: 0% 0% 0% 85%;"><label title="oauth">Manage OAuth Accounts</label></a>
+					<a href="/google/user/email"
+						style="padding: 0% 0% 0% 90%;"><label title="oauth">GMail</label></a>	
 				</c:when>
 				<c:otherwise>
 					<a href="/google/user/username" style="padding: 0% 0% 0% 85%;"><label

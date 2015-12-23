@@ -1,4 +1,6 @@
-package org.bhavnesh.stackoverflow.welcome.controller;
+package org.bhavnesh.stackoverflow.oauth.user;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -6,12 +8,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 @Controller
-@RequestMapping("/")
-public class MainController {
+@RequestMapping("/user")
+public class AccountController {
 
 	@RequestMapping(method = RequestMethod.GET)
-	public String google(ModelMap model) {
-
-		return "stackoverflow";
+	public String manageAccount(ModelMap model, HttpServletRequest request){
+		return "manageaccount";
 	}
+	
+	
 }

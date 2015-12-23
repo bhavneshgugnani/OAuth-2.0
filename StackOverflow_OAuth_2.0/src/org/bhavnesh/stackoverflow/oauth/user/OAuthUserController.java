@@ -1,6 +1,5 @@
 package org.bhavnesh.stackoverflow.oauth.user;
 
-import java.io.BufferedReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
@@ -11,8 +10,10 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.bhavnesh.stackoverflow.db.DBConnectionManager;
 import org.bhavnesh.stackoverflow.db.DBQueryManager;
 import org.bhavnesh.stackoverflow.oauth.Constants;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,6 +23,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 @RequestMapping("/oauth")
 public class OAuthUserController {
+	private DBConnectionManager dbConnectionManager = null;
+
+	public DBConnectionManager getDbConnectionManager() {
+		return dbConnectionManager;
+	}
+
+	@Autowired
+	public void setDbConnectionManager(DBConnectionManager dbConnectionManager) {
+		this.dbConnectionManager = dbConnectionManager;
+	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/callback")
 	public String receiveTempToken(@RequestParam(value = Constants.ACCESS, required = true) String access,
@@ -67,8 +78,7 @@ public class OAuthUserController {
 		String token = (String) session.getAttribute(Constants.TOKEN);
 		// Request google server for oauth token in exchange of temp token
 		// provided by google before token timeout
-		StringBuilder result = new StringBuilder();
-		BufferedReader rd = null;
+
 		HttpURLConnection conn = null;
 		try {
 			URL url = new URL(Constants.OAUTH_REQUEST_URL + "?token=" + URLEncoder.encode(token.trim(), "UTF-8"));// java.net.URLEncoder.encode(Constants.OAUTH_REQUEST_URL
@@ -87,8 +97,15 @@ public class OAuthUserController {
 			if (success) {
 				// encrypt and save token for future access
 				String oauthToken = headerFields.get(Constants.TOKEN).get(0);
-				StringBuilder query = DBQueryManager.createAddOAuthToken();
-
+				String username = (String) session.getAttribute(Constants.USERNAME);
+				StringBuilder query = DBQueryManager.createAddOAuthTokenQuery(oauthToken, username);
+				int rs = dbConnectionManager.executeUpdate(query);
+				if(rs == 1){
+					model.addAttribute(Constants.DISPLAY_MESSAGE, "Account linekd successfully!");
+					session.setAttribute(Constants.LINKED, true);
+				} else {
+					model.addAttribute(Constants.DISPLAY_MESSAGE, "Something went wrong. Please try again");
+				}
 				// remove temp token form session
 				session.removeAttribute(Constants.TOKEN);
 			} else {

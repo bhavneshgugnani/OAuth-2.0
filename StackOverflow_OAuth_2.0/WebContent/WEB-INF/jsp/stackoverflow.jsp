@@ -9,14 +9,19 @@
 </head>
 <body>
 	<div style="width: 100%; height: 15%;">
-		<div style="align: right; padding: 0px 25px 0px 0px; vertical-align: middle;">
-			<a href="/stackoverflow/signup"><label title="signup">Sign
-					Up</label></a>
-		</div>
-		<div style="align: right; padding: 0px 100px 0px 0px; vertical-align: middle;">
-			<a href="/stackoverflow/signin"><label title="signin">Sign
-					In</label></a>
-		</div>
+			<c:choose>
+				<c:when test="${authenticated == true}">
+					<a style="padding: 0% 0% 0% 90%;" href="/stackoverflow/signout"><label title="signout">Sign Out</label></a>
+					<a style="padding: 0% 0% 0% 85%;" href="/stackoverflow/user/account"><label title="manage">Manage Account</label></a>
+					<c:if test="${linked == true}">
+						<a style="padding: 0% 0% 0% 85%;" href="/stackoverflow/user/oauth/google"><label title="linked">Email from Google</label></a>
+					</c:if>
+				</c:when>
+				<c:otherwise>
+					<a style="padding: 0% 0% 0% 90%;" href="/stackoverflow/signup"><label title="signup">Sign Up</label></a>
+					<a style="padding: 0% 0% 0% 90%;" href="/stackoverflow/signin"><label title="signin">Sign In</label></a>
+				</c:otherwise>
+			</c:choose>
 	</div>
 	<div style="width: 100%; height: 85%;">
 		<div style="align: left; padding: 0px 0px 0px 150px; vertical-align: top;">

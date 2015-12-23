@@ -1,6 +1,5 @@
 package org.bhavnesh.google.oauth.user;
 
-import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.sql.ResultSet;
 import java.util.ArrayList;
@@ -46,27 +45,27 @@ public class OAuthUserController {
 		// get all clients linked to oauth for user account
 		try {
 			String email = (String) request.getSession().getAttribute(Constants.EMAIL);
-			//get ids of all clients linked
+			// get ids of all clients linked
 			StringBuilder query = DBQueryManager.createOAuthLinkedAccountQuery(email);
 			ResultSet rs = dbConnectionManager.executeQuery(query);
 			List<String> clientIds = new ArrayList<>();
 			while (rs.next()) {
 				clientIds.add(rs.getString("ClientId"));
 			}
-			
-			if(!clientIds.isEmpty()){
-				//get names of clients
+
+			if (!clientIds.isEmpty()) {
+				// get names of clients
 				query = DBQueryManager.createGetClientQuery(clientIds);
 				rs = dbConnectionManager.executeQuery(query);
-				ClientVO client = null; 
+				ClientVO client = null;
 				List<ClientVO> clients = new ArrayList<>();
-				while(rs.next()){
+				while (rs.next()) {
 					client = new ClientVO();
 					client.setClientId(rs.getString("Id"));
 					client.setClientName(rs.getString("ClientName"));
 					clients.add(client);
 				}
-				if(!clients.isEmpty()){
+				if (!clients.isEmpty()) {
 					model.addAttribute(Constants.OAUTH_CLIENTS, clients);
 				}
 			}
@@ -76,25 +75,26 @@ public class OAuthUserController {
 		}
 		return "google";
 	}
-	
-	@RequestMapping(method = RequestMethod.POST, value="/remove/{clientId}")
-	public void removeOAuthClient(@PathVariable("clientId") String clientId, HttpServletRequest request, ModelMap model){
-		try{
+
+	@RequestMapping(method = RequestMethod.POST, value = "/remove/{clientId}")
+	public void removeOAuthClient(@PathVariable("clientId") String clientId, HttpServletRequest request,
+			ModelMap model) {
+		try {
 			String email = (String) request.getSession().getAttribute(Constants.EMAIL);
 			StringBuilder query = DBQueryManager.createRemoveOAuthClientQuery(clientId, email);
 			int rs = dbConnectionManager.executeUpdate(query);
-			if(rs == 1){
-				//successful
+			if (rs == 1) {
+				// successful
 				model.addAttribute(Constants.DISPLAY_MESSAGE, "OAuth Client unlinked successfully!");
-			} else if(rs == 0) {
-				//error, failed to delete, wrong params
+			} else if (rs == 0) {
+				// error, failed to delete, wrong params
 				model.addAttribute(Constants.DISPLAY_MESSAGE, "Failed to unlink account. Please try again.");
 			}
-		} catch(Exception ex){
+		} catch (Exception ex) {
 			System.out.println(ex.getMessage());
 			model.addAttribute(Constants.DISPLAY_MESSAGE, "Failed to unlink account. Unexpected error.");
 		}
-		//page reloaded by client
+		// page reloaded by client
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/{clientId}")
@@ -264,7 +264,7 @@ public class OAuthUserController {
 		String oauthToken = "";
 		String message = "";
 		boolean success = false;
-		
+
 		try {
 			// find client secret from db
 			StringBuilder query = DBQueryManager.createClientSecretQuery(clientId);
@@ -296,12 +296,12 @@ public class OAuthUserController {
 							// delete temp token
 							query = DBQueryManager.createDeleteTempTokenQuery(encryptedToken, clientId);
 							dbConnectionManager.executeUpdate(query);
-							
+
 							oauthToken = URLEncoder.encode(uuid.toString().trim(), "UTF-8");
 							success = true;
 							System.out.println("GOOGLE : OAuth Token = *******" + uuid.toString().trim() + "********");
 						} else if (result == 0) {
-							// no row affected in table 
+							// no row affected in table
 							success = false;
 							message = "OAuth token generation failed. Please try again.";
 						}
@@ -323,7 +323,7 @@ public class OAuthUserController {
 		} catch (Exception ex) {
 			System.out.println(ex.getMessage());
 		} finally {
-			// add final results to response header 
+			// add final results to response header
 			response.setHeader(Constants.TOKEN, oauthToken);
 			response.setHeader(Constants.SUCCESS, String.valueOf(success));
 			response.setHeader(Constants.DISPLAY_MESSAGE, message);

@@ -15,7 +15,7 @@ public class DBConnectionManager {
 	public DBConnectionManager() {
 		initialiseDB();
 	}
-	
+
 	public void initialiseDB() {
 		// Create db connection
 		Properties prop = new Properties();
@@ -50,9 +50,9 @@ public class DBConnectionManager {
 		executeUpdate(createUserOAuthTableInitialisationQuery());
 		System.out.println("******************TABLE SCHEMAS CREATED FOR STACKOVERFLOW********************");
 	}
-	
+
 	public int executeUpdate(StringBuilder query) {
-		int rs = -1;
+		int rs = 0;
 		try {
 			rs = conn.createStatement().executeUpdate(query.toString());
 		} catch (Exception ex) {
@@ -79,13 +79,15 @@ public class DBConnectionManager {
 
 	private StringBuilder createUserTableInitializationQuery() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("CREATE TABLE oauth2_0.stackoverflow_user (ID int UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY, FirstName varchar(25) NOT NULL, LastName varchar(25) NOT NULL, EMail varchar(50) UNIQUE NOT NULL, Username varchar(25) UNIQUE NOT NULL, Password varchar(25) NOT NULL, Age int , Gender ENUM('Male', 'Female') NOT NULL, Address varchar(255), Phone varchar(10));");
+		sb.append(
+				"CREATE TABLE oauth2_0.stackoverflow_user (ID int UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY, FirstName varchar(25) NOT NULL, LastName varchar(25) NOT NULL, Username varchar(100) UNIQUE NOT NULL, Password varchar(25) NOT NULL, Age int, Gender varchar(25) NOT NULL, Linked varchar(5) DEFAULT 'false');");
 		return sb;
 	}
-	
-	private StringBuilder createUserOAuthTableInitialisationQuery(){
+
+	private StringBuilder createUserOAuthTableInitialisationQuery() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("CREATE TABLE oauth2_0.stackoverflow_user_oauth (ID int UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY, Username varchar(25) UNIQUE NOT NULL, OAuthToken varchar(25) UNIQUE NOT NULL);");
+		sb.append(
+				"CREATE TABLE oauth2_0.stackoverflow_user_oauth (ID int UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY, Username varchar(25) UNIQUE NOT NULL, OAuthToken varchar(25) UNIQUE NOT NULL);");
 		return sb;
 	}
 }

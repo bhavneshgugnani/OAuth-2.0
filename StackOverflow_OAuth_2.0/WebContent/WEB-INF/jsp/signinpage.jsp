@@ -17,15 +17,19 @@
 <h2>Sign In</h2>
 <br/>
 <br/>
+<c:if test="${message != null}">
+	<h2 style="color: red">${message}</h2>
+</c:if>
 <br/>
-<form:form action="/stackoverflow/user/login" method="post" modelAttribute="userloginform">
+<br/>
+<form:form action="/stackoverflow/signin" method="post" modelAttribute="usersigninform">
 Username : <input type="text" id="username" name="username"/>
 <br/>
 <br/>
 Password : <input type="password" id="password" name="password"/>
 <br/>
 <br/>
-<button type="submit" value="login">Log In</button>
+<button type="submit" value="login">Sign In</button>
 </form:form>
 <br/>
 <br/>

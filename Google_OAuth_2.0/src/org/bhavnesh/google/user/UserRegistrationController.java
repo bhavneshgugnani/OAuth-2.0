@@ -5,6 +5,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.bhavnesh.google.db.DBConnectionManager;
 import org.bhavnesh.google.db.DBQueryManager;
 import org.bhavnesh.google.form.UserRegistrationForm;
+import org.bhavnesh.google.oauth.security.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -36,16 +37,23 @@ public class UserRegistrationController {
 	public String postSignUp(@ModelAttribute("userregistrationform") UserRegistrationForm form, ModelMap model,
 			HttpServletRequest request) {
 		try {
-			// save credentials
+			// save credentials and login if successfull
 			StringBuilder sb = DBQueryManager.createQuery(form);
-			dbConnectionManager.executeUpdate(sb);
-			model.addAttribute("username", form.getUsername());
-			model.addAttribute("authenticated", true);
-			request.getSession().setAttribute("authenticated", "user");
+			int rs = dbConnectionManager.executeUpdate(sb);
+			if (rs == 1) {
+				model.addAttribute("username", form.getUsername());
+				model.addAttribute(Constants.AUTHENTICATED, true);
+				request.getSession().setAttribute(Constants.AUTHENTICATED, true);
+				return "google";
+			} else if (rs == 0) {
+				model.addAttribute(Constants.DISPLAY_MESSAGE,
+						"User with same information exists in database. Please try different credentials.");
+			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			System.out.println(e.getMessage());
+			model.addAttribute(Constants.DISPLAY_MESSAGE, "Something went wrong. Please try again.");
 		}
-		return "google";
+		return "newuserregistrationpage";
 	}
 
 }

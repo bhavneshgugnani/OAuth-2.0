@@ -1,3 +1,5 @@
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
     pageEncoding="ISO-8859-1"%>
@@ -14,7 +16,7 @@
 Sign Up using your <a href="/stackoverflow/oauth/redirect">Google Account!</a>
 <br/>
 <br/>
-<form:form action="/stackoverflow/user/register" method="post" modelAttribute="userregistrationform">
+<form:form action="/stackoverflow/signup" method="post" modelAttribute="userregistrationform">
 First Name : <input type="text" id="firstname" name="firstname"/>
 <br/>
 <br/>
@@ -28,12 +30,6 @@ Gender : <select id="gender" name="gender">
 		     <option value="Male">Male</option>
 		     <option value="Female">Female</option>
 		 </select>
-<br/>
-<br/>
-Address : <input type="text" id="address" name="address"/>
-<br/>
-<br/>
-Phone Number : <input type="text" id="phone" name="phone"/>
 <br/>
 <br/>
 Username : <input type="text" id="username" name="username"/>
