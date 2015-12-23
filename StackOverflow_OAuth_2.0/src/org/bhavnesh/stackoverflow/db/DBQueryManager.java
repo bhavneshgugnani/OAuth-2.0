@@ -43,5 +43,22 @@ public class DBQueryManager {
 		sb.append("');");
 		return sb;
 	}
+	
+	public static final StringBuilder createUpdateLinkedStateOfUser(String username, String linked){
+		StringBuilder sb = new StringBuilder();
+		sb.append("UPDATE oauth2_0.stackoverflow_user SET Linked='");
+		sb.append(linked);
+		sb.append("' WHERE Username='");
+		sb.append(username);
+		sb.append("';");
+		return sb;
+	}
 
+	public static final StringBuilder createGetOAuthTokenForUser(String username){
+		StringBuilder sb = new StringBuilder();
+		sb.append("SELECT OAuthToken FROM oauth2_0.stackoverflow_user_oauth WHERE Username='");
+		sb.append(username);
+		sb.append("';");
+		return sb;
+	}
 }

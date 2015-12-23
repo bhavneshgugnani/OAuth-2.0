@@ -95,14 +95,22 @@ public class OAuthUserController {
 			Map<String, List<String>> headerFields = conn.getHeaderFields();
 			boolean success = Boolean.parseBoolean(headerFields.get(Constants.SUCCESS).get(0));
 			if (success) {
-				// encrypt and save token for future access
+				// save token for future access
 				String oauthToken = headerFields.get(Constants.TOKEN).get(0);
 				String username = (String) session.getAttribute(Constants.USERNAME);
 				StringBuilder query = DBQueryManager.createAddOAuthTokenQuery(oauthToken, username);
 				int rs = dbConnectionManager.executeUpdate(query);
 				if(rs == 1){
-					model.addAttribute(Constants.DISPLAY_MESSAGE, "Account linekd successfully!");
-					session.setAttribute(Constants.LINKED, true);
+					// update state if user
+					query = DBQueryManager.createUpdateLinkedStateOfUser(username, String.valueOf(true));
+					rs = dbConnectionManager.executeUpdate(query);
+					if(rs == 1){
+						model.addAttribute(Constants.DISPLAY_MESSAGE, "Account linked successfully!");
+						session.setAttribute(Constants.LINKED, true);
+					} else if(rs == 0){
+						model.addAttribute(Constants.DISPLAY_MESSAGE, "Something went wrong. Please try again");
+					}
+					
 				} else {
 					model.addAttribute(Constants.DISPLAY_MESSAGE, "Something went wrong. Please try again");
 				}

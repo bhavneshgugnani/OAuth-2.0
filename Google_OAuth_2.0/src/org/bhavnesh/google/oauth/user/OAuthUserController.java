@@ -250,6 +250,7 @@ public class OAuthUserController {
 
 		} catch (Exception ex) {
 			System.out.println(ex.getMessage());
+			model.addAttribute(Constants.DISPLAY_MESSAGE, "Something went wroing! Please try again later.");
 		}
 		model.addAttribute(Constants.DISPLAY_MESSAGE, "Failed to grant permission! Please try again.");
 		model.addAttribute("clientName", request.getSession().getAttribute("clientName"));
@@ -322,6 +323,7 @@ public class OAuthUserController {
 			}
 		} catch (Exception ex) {
 			System.out.println(ex.getMessage());
+			message = "Something went wrong. Please try again later.";
 		} finally {
 			// add final results to response header
 			response.setHeader(Constants.TOKEN, oauthToken);

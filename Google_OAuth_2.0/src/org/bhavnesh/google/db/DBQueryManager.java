@@ -162,25 +162,25 @@ public class DBQueryManager {
 		sb.append("';");
 		return sb;
 	}
-	
-	public static final StringBuilder createOAuthLinkedAccountQuery(String email){
+
+	public static final StringBuilder createOAuthLinkedAccountQuery(String email) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("SELECT ClientId FROM oauth2_0.google_oauth_token WHERE EMail='");
 		sb.append(email);
 		sb.append("';");
 		return sb;
 	}
-	
-	public static final StringBuilder createGetClientQuery(List<String> clientIds){
+
+	public static final StringBuilder createGetClientQuery(List<String> clientIds) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("SELECT Id, ClientName FROM oauth2_0.google_client WHERE Id IN (");
-		for(String id : clientIds)
+		for (String id : clientIds)
 			sb.append("'" + id + "'");
 		sb.append(");");
 		return sb;
 	}
-	
-	public static final StringBuilder createRemoveOAuthClientQuery(String clientId, String email){
+
+	public static final StringBuilder createRemoveOAuthClientQuery(String clientId, String email) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("DELETE FROM oauth2_0.google_oauth_token WHERE ClientId='");
 		sb.append(clientId);
@@ -189,13 +189,23 @@ public class DBQueryManager {
 		sb.append("';");
 		return sb;
 	}
-	
-	public static final StringBuilder createDeleteTempTokenQuery(String token, String clientId){
+
+	public static final StringBuilder createDeleteTempTokenQuery(String token, String clientId) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("DELETE FROM oauth2_0.google_temp_token WHERE Token='");
 		sb.append(token);
 		sb.append("' AND ClientId='");
 		sb.append(clientId);
+		sb.append("';");
+		return sb;
+	}
+
+	public static final StringBuilder createAccessUsingOAuthToken(String oAuthToken, String clientId) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("SELECT EMail FROM oauth2_0.google_oauth_token WHERE ClientId='");
+		sb.append(clientId);
+		sb.append("' AND OAuthToken='");
+		sb.append(oAuthToken);
 		sb.append("';");
 		return sb;
 	}
