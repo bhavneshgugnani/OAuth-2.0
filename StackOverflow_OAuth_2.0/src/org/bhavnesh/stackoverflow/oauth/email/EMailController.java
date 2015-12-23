@@ -2,11 +2,13 @@ package org.bhavnesh.stackoverflow.oauth.email;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.sql.ResultSet;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.bhavnesh.stackoverflow.db.DBConnectionManager;
 import org.bhavnesh.stackoverflow.db.DBQueryManager;
@@ -43,7 +45,7 @@ public class EMailController {
 				String oauthToken = rs.getString("OAuthToken");
 				
 				// request google for email access
-				URL url = new URL(""); 
+				URL url = new URL(Constants.GOOGLE_EMAIL_URL + URLEncoder.encode(Constants.CLIENT_ID.trim(), "UTF-8") + "&token=" + URLEncoder.encode(oauthToken.trim(), "UTF-8")); 
 				conn = (HttpURLConnection) url.openConnection();
 				
 				Map<String, List<String>> headersFields = conn.getHeaderFields();
@@ -62,6 +64,9 @@ public class EMailController {
 			System.out.println(ex.getMessage());
 			model.addAttribute(Constants.DISPLAY_MESSAGE, "Something went wrong. Please try again later.");
 		}
+		HttpSession session = request.getSession();
+		model.addAttribute(Constants.AUTHENTICATED, session.getAttribute(Constants.AUTHENTICATED));
+		model.addAttribute(Constants.LINKED, session.getAttribute(Constants.LINKED));
 		return "emailpage";
 	}
 }

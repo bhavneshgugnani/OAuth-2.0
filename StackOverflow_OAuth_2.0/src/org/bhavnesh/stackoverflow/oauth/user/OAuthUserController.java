@@ -125,6 +125,6 @@ public class OAuthUserController {
 		} catch (Exception ex) {
 			System.out.println(ex.getMessage());
 		}
-		return "oauthresultpage";
+		return "manageaccount";
 	}
 }

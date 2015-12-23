@@ -10,6 +10,9 @@ public class Constants {
 	//production server of stackoverflow
 	public static final String RESPONSE_URL = "http://localhost:8080/stackoverflow/oauth/callback";
 	
+	//email access url for google
+	public static final String GOOGLE_EMAIL_URL = "http://localhost:8080/google/user/email/oauth?clientid=";
+	
 	public static final String ACCESS = "access";
 	public static final String TOKEN = "token";
 	public static final String SUCCESS = "success";

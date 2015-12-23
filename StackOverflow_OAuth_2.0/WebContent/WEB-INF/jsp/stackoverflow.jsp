@@ -14,7 +14,7 @@
 					<a style="padding: 0% 0% 0% 90%;" href="/stackoverflow/signout"><label title="signout">Sign Out</label></a>
 					<a style="padding: 0% 0% 0% 85%;" href="/stackoverflow/user/account"><label title="manage">Manage Account</label></a>
 					<c:if test="${linked == true}">
-						<a style="padding: 0% 0% 0% 85%;" href="/stackoverflow/user/oauth/google"><label title="linked">Email from Google</label></a>
+						<a style="padding: 0% 0% 0% 85%;" href="/stackoverflow/user/email"><label title="linked">Email from Google</label></a>
 					</c:if>
 				</c:when>
 				<c:otherwise>

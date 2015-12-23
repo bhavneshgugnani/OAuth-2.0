@@ -87,7 +87,7 @@ public class DBConnectionManager {
 	private StringBuilder createUserOAuthTableInitialisationQuery() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(
-				"CREATE TABLE oauth2_0.stackoverflow_user_oauth (ID int UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY, Username varchar(25) UNIQUE NOT NULL, OAuthToken varchar(25) UNIQUE NOT NULL);");
+				"CREATE TABLE oauth2_0.stackoverflow_user_oauth (ID int UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY, Username varchar(100) UNIQUE NOT NULL, OAuthToken varchar(250) UNIQUE NOT NULL);");
 		return sb;
 	}
 }
